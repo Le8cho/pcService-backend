@@ -1,3 +1,4 @@
 flask
 oracledb
 python-dotenv
+pyjwt
