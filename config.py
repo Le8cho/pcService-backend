@@ -1,14 +1,23 @@
-
-# config.py
+# config.py (Versión Mejorada y Centralizada)
 import os
 from dotenv import load_dotenv
 
-load_dotenv() # Carga variables desde un archivo .env si lo usas
+# Cargar el archivo .env una sola vez al inicio del proyecto
+load_dotenv()
 
+# --- Variables para la configuración del cliente Oracle ---
+# Se definen a nivel de módulo para ser importadas y usadas antes de que la app Flask se configure por completo.
+TNS_ADMIN = os.environ.get('TNS_ADMIN')
+ORACLE_CLIENT_LIB_DIR = os.environ.get('ORACLE_CLIENT_LIB_DIR')
+
+
+# --- Clase para la configuración de la aplicación Flask ---
+# Estas variables serán cargadas en app.config usando app.config.from_object(Config)
 class Config:
+    # Es una buena práctica tener una SECRET_KEY en las apps Flask
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'una-clave-secreta-por-defecto-para-desarrollo'
+    
+    # Credenciales y DSN para la conexión de la app
     ORACLE_USER = os.environ.get('ORACLE_USER')
     ORACLE_PASSWORD = os.environ.get('ORACLE_PASSWORD')
     ORACLE_DSN = os.environ.get('ORACLE_DSN')
-    # Opcional: si no estableces TNS_ADMIN globalmente, puedes pasar esta ruta
-    # al inicializar el cliente Oracle, pero TNS_ADMIN es más estándar.
-    # ORACLE_WALLET_PATH = os.environ.get('ORACLE_WALLET_PATH') # Sería igual a TNS_ADMIN

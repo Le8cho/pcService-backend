@@ -1,48 +1,51 @@
-# app.py
+# app.py (Versión Mejorada y Limpia)
+
+# Importamos la configuración ya procesada desde nuestro módulo config.py
+from config import Config, ORACLE_CLIENT_LIB_DIR, TNS_ADMIN
+
 from flask import Flask, g, jsonify
 import oracledb
-import os
-from config import Config
+import traceback # Útil para imprimir errores completos durante la depuración
 
+# --- Inicialización del Cliente Oracle ---
+# Usa las variables importadas directamente desde config.py
+try:
+    if ORACLE_CLIENT_LIB_DIR:
+        # Pasamos TNS_ADMIN a config_dir para ser explícitos.
+        oracledb.init_oracle_client(lib_dir=ORACLE_CLIENT_LIB_DIR, config_dir=TNS_ADMIN)
+        print(f"INFO: Oracle Client inicializado desde: {ORACLE_CLIENT_LIB_DIR}")
+    else:
+        print("ADVERTENCIA: ORACLE_CLIENT_LIB_DIR no está configurado en .env. "
+              "python-oracledb intentará usar librerías del PATH del sistema si opera en modo Thick.")
+except Exception as e_init:
+    print(f"ERROR CRÍTICO al inicializar Oracle Client: {e_init}")
+    print(traceback.format_exc())
+    # En un caso real, podrías querer que la aplicación no continúe si esto falla.
+    
+# --- Creación de la Aplicación Flask ---
 app = Flask(__name__)
+# Carga las variables de la CLASE Config en el objeto app.config
 app.config.from_object(Config)
 
-# Variable global para el pool
+# Variable global para el pool de conexiones
 oracle_pool = None
 
 def init_oracle_pool():
     global oracle_pool
     try:
-        # Es crucial que TNS_ADMIN esté configurado en el entorno para que
-        # python-oracledb (en modo Thick) encuentre el wallet.
-        # Si las librerías del Instant Client no están en el PATH del sistema (LD_LIBRARY_PATH en Linux, PATH en Windows),
-        # puedes necesitar inicializar el cliente explícitamente con la ruta a esas librerías.
-        # Ejemplo:
-        if os.name == 'nt': # Windows
-            oracledb.init_oracle_client(lib_dir=r"D:/UNMSM/7mo_ciclo/DSW/Proyecto/oracle_instant_client/instantclient_23_8")
-        # else: # Linux/macOS
-        #    oracledb.init_oracle_client(lib_dir="/opt/oracle/instantclient_XX_X")
-        # En muchos casos, si Instant Client está bien instalado y TNS_ADMIN está seteado,
-        # la inicialización explícita de lib_dir no es necesaria.
-
-        print(f"Intentando crear pool con DSN: {app.config['ORACLE_DSN']}")
-        print(f"Usuario: {app.config['ORACLE_USER']}")
-        print(f"TNS_ADMIN (leído del entorno): {os.environ.get('TNS_ADMIN')}")
-
-        
-
+        # Ahora usa app.config, que fue poblado desde la clase Config
         oracle_pool = oracledb.create_pool(
             user=app.config['ORACLE_USER'],
             password=app.config['ORACLE_PASSWORD'],
             dsn=app.config['ORACLE_DSN'],
-            min=2, # Número mínimo de conexiones en el pool
-            max=5, # Número máximo de conexiones
-            increment=1 # Cuántas conexiones crear cuando se necesiten más
+            min=2,
+            max=5,
+            increment=1
         )
         app.logger.info("Oracle Connection Pool creado exitosamente.")
     except Exception as e:
         app.logger.error(f"Error al crear Oracle Connection Pool: {e}")
-        oracle_pool = None # Asegúrate de manejar esto en tus rutas
+        oracle_pool = None
 
 # Llama a la inicialización del pool cuando la app se crea
 with app.app_context():
@@ -51,30 +54,20 @@ with app.app_context():
 # Funciones para obtener y cerrar conexiones del pool
 def get_db():
     if 'db' not in g:
-        if oracle_pool:
-            try:
-                g.db = oracle_pool.acquire()
-                app.logger.debug("Conexión adquirida del pool.")
-            except Exception as e:
-                app.logger.error(f"Error al adquirir conexión del pool: {e}")
-                raise # Propaga la excepción para que se maneje globalmente o por la ruta
-        else:
-            app.logger.error("El pool de Oracle no está inicializado.")
-            raise Exception("Oracle Pool no disponible.")
+        if not oracle_pool:
+            raise Exception("Error crítico: El pool de conexiones de Oracle no está disponible.")
+        try:
+            g.db = oracle_pool.acquire()
+        except Exception as e:
+            app.logger.error(f"Error al adquirir conexión del pool: {e}")
+            raise
     return g.db
 
 @app.teardown_appcontext
 def teardown_db(exception=None):
     db = g.pop('db', None)
     if db is not None:
-        try:
-            db.close()
-            app.logger.debug("Conexión devuelta al pool.")
-        except Exception as e:
-            app.logger.error(f"Error al cerrar/devolver conexión al pool: {e}")
-    if exception:
-        app.logger.error(f"Cerrando app context debido a excepción: {exception}")
-
+        db.close()
 
 # Ruta de ejemplo para probar la conexión
 @app.route('/')
@@ -83,14 +76,15 @@ def index():
         conn = get_db()
         cursor = conn.cursor()
         cursor.execute("SELECT sysdate FROM dual")
-        db_time, = cursor.fetall()
+        # Corregido: fetchone() y conversión a string para JSON
+        db_time, = cursor.fetchone()
         cursor.close()
-        return jsonify(message="Conexión a Oracle ATP exitosa!", db_time=list(db_time))
+        return jsonify(message="Conexión a Oracle ATP exitosa!", db_time=str(db_time))
     except Exception as e:
         app.logger.error(f"Error en la ruta /: {e}")
         return jsonify(error=str(e)), 500
 
 if __name__ == '__main__':
-    # Establece TNS_ADMIN aquí si no está en el entorno global ANTES de importar oracledb o crear el pool
-    # os.environ['TNS_ADMIN'] = '/ruta/completa/a/tu/directorio_wallet'
+    # El debug=True es genial para desarrollo
     app.run(debug=True)
+
