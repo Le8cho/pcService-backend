@@ -3,6 +3,7 @@
 # Importamos la configuración ya procesada desde nuestro módulo config.py
 from config import Config, ORACLE_CLIENT_LIB_DIR, TNS_ADMIN
 from flask import Flask, g, jsonify, request
+from flask_cors import CORS
 import oracledb
 import traceback # Útil para imprimir errores completos durante la depuración
 from werkzeug.security import check_password_hash
@@ -26,6 +27,10 @@ except Exception as e_init:
     
 # --- Creación de la Aplicación Flask ---
 app = Flask(__name__)
+
+# Esto permite que tu frontend en localhost:4200 se comunique con el backend.
+CORS(app) 
+
 # Carga las variables de la CLASE Config en el objeto app.config
 app.config.from_object(Config)
 
