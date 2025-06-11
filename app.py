@@ -4,14 +4,15 @@
 from config import Config, ORACLE_CLIENT_LIB_DIR, TNS_ADMIN
 
 from flask import Flask, g, jsonify
-import oracledb
+from flask_cors import CORS  # Agrega esta importación
+import oracledb  # <-- Mueve esta línea aquí, antes de usar oracledb
 import traceback # Útil para imprimir errores completos durante la depuración
+from routes.clientes import clientes_bp  # Importa el blueprint de clientes
+from db import init_oracle_pool, get_db  # Importa desde db.py
 
 # --- Inicialización del Cliente Oracle ---
-# Usa las variables importadas directamente desde config.py
 try:
     if ORACLE_CLIENT_LIB_DIR:
-        # Pasamos TNS_ADMIN a config_dir para ser explícitos.
         oracledb.init_oracle_client(lib_dir=ORACLE_CLIENT_LIB_DIR, config_dir=TNS_ADMIN)
         print(f"INFO: Oracle Client inicializado desde: {ORACLE_CLIENT_LIB_DIR}")
     else:
@@ -24,44 +25,22 @@ except Exception as e_init:
     
 # --- Creación de la Aplicación Flask ---
 app = Flask(__name__)
+CORS(app)  # Habilita CORS para toda la app
+
 # Carga las variables de la CLASE Config en el objeto app.config
 app.config.from_object(Config)
 
-# Variable global para el pool de conexiones
-oracle_pool = None
-
-def init_oracle_pool():
-    global oracle_pool
-    try:
-        # Ahora usa app.config, que fue poblado desde la clase Config
-        oracle_pool = oracledb.create_pool(
-            user=app.config['ORACLE_USER'],
-            password=app.config['ORACLE_PASSWORD'],
-            dsn=app.config['ORACLE_DSN'],
-            min=2,
-            max=5,
-            increment=1
-        )
-        app.logger.info("Oracle Connection Pool creado exitosamente.")
-    except Exception as e:
-        app.logger.error(f"Error al crear Oracle Connection Pool: {e}")
-        oracle_pool = None
+# Registra el blueprint de clientes
+app.register_blueprint(clientes_bp, url_prefix='/clientes')
 
 # Llama a la inicialización del pool cuando la app se crea
 with app.app_context():
-    init_oracle_pool()
-
-# Funciones para obtener y cerrar conexiones del pool
-def get_db():
-    if 'db' not in g:
-        if not oracle_pool:
-            raise Exception("Error crítico: El pool de conexiones de Oracle no está disponible.")
-        try:
-            g.db = oracle_pool.acquire()
-        except Exception as e:
-            app.logger.error(f"Error al adquirir conexión del pool: {e}")
-            raise
-    return g.db
+    try:
+        init_oracle_pool(oracledb, app)
+    except Exception as pool_error:
+        print(f"ERROR CRÍTICO: {pool_error}")
+        import sys
+        sys.exit(1)  # Detiene la app si el pool no se puede crear
 
 @app.teardown_appcontext
 def teardown_db(exception=None):
