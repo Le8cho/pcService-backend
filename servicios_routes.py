@@ -240,4 +240,3 @@ def register_servicios_routes(app):
     app.route('/api/servicios/<int:id>', methods=['PUT'])(update_servicio)
     app.route('/api/servicios/<int:id>', methods=['DELETE'])(delete_servicio)
     app.route('/api/servicios/search', methods=['GET'])(search_servicios)
-    app.route('/api/clientes', methods=['GET'])(get_clientes)
