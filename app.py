@@ -4,8 +4,12 @@
 from config import Config, ORACLE_CLIENT_LIB_DIR, TNS_ADMIN
 
 from flask import Flask, g, jsonify
+from flask_cors import CORS  # Agregar esta línea
 import oracledb
 import traceback # Útil para imprimir errores completos durante la depuración
+
+# Importar las rutas de mantenimientos
+from mantenimientos_routes import register_mantenimientos_routes  # Agregar esta línea
 
 # --- Inicialización del Cliente Oracle ---
 # Usa las variables importadas directamente desde config.py
@@ -24,6 +28,8 @@ except Exception as e_init:
     
 # --- Creación de la Aplicación Flask ---
 app = Flask(__name__)
+# Habilitar CORS para todas las rutas (agregar esta línea)
+CORS(app)
 # Carga las variables de la CLASE Config en el objeto app.config
 app.config.from_object(Config)
 
@@ -84,7 +90,9 @@ def index():
         app.logger.error(f"Error en la ruta /: {e}")
         return jsonify(error=str(e)), 500
 
+# Registrar todas las rutas de mantenimientos (agregar esta línea)
+register_mantenimientos_routes(app)
+
 if __name__ == '__main__':
     # El debug=True es genial para desarrollo
     app.run(debug=True)
-
