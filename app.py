@@ -12,6 +12,8 @@ import jwt
 import datetime
 
 # Importar las rutas de mantenimientos
+from servicios_routes import register_servicios_routes  # Agregar esta línea
+
 from mantenimientos_routes import register_mantenimientos_routes  # Agregar esta línea
 
 # --- Inicialización del Cliente Oracle ---
@@ -149,6 +151,7 @@ def login():
         return jsonify(error="Ocurrió un error en el servidor"), 500
 
 # Registrar todas las rutas de mantenimientos (agregar esta línea)
+register_servicios_routes(app)
 register_mantenimientos_routes(app)
 
 if __name__ == '__main__':
