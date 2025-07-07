@@ -2,13 +2,28 @@
 
 # Importamos la configuración ya procesada desde nuestro módulo config.py
 from config import Config, ORACLE_CLIENT_LIB_DIR, TNS_ADMIN
+from flask import Flask, g, jsonify, request
+from flask_cors import CORS
 
+<<<<<<< HEAD
 from flask import Flask, g, jsonify
 from flask_cors import CORS  # Agrega esta importación
 import oracledb  # <-- Mueve esta línea aquí, antes de usar oracledb
 import traceback # Útil para imprimir errores completos durante la depuración
 from routes.clientes import clientes_bp  # Importa el blueprint de clientes
 from db import init_oracle_pool, get_db  # Importa desde db.py
+=======
+import oracledb
+import traceback # Útil para imprimir errores completos durante la depuración
+from werkzeug.security import check_password_hash
+import jwt
+import datetime
+
+# Importar las rutas de mantenimientos
+from servicios_routes import register_servicios_routes  # Agregar esta línea
+
+from mantenimientos_routes import register_mantenimientos_routes  # Agregar esta línea
+>>>>>>> origin/MergePrueba
 
 # --- Inicialización del Cliente Oracle ---
 try:
@@ -25,8 +40,13 @@ except Exception as e_init:
     
 # --- Creación de la Aplicación Flask ---
 app = Flask(__name__)
+<<<<<<< HEAD
 CORS(app)  # Habilita CORS para toda la app
 
+=======
+
+CORS(app)
+>>>>>>> origin/MergePrueba
 # Carga las variables de la CLASE Config en el objeto app.config
 app.config.from_object(Config)
 
@@ -62,8 +82,66 @@ def index():
     except Exception as e:
         app.logger.error(f"Error en la ruta /: {e}")
         return jsonify(error=str(e)), 500
+    
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    """
+    Endpoint para autenticar un usuario y devolver un token JWT.
+    """
+    try:
+        # Obtener los datos del cuerpo de la petición (JSON)
+        auth_data = request.get_json()
+        if not auth_data or not auth_data.get('nombre_usuario') or not auth_data.get('contrasena'):
+            return jsonify({"error": "Faltan nombre de usuario o contraseña"}), 400
+
+        nombre_usuario = auth_data['nombre_usuario']
+        contrasena = auth_data['contrasena']
+
+        # Conectarse a la BD y buscar al usuario
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        sql = "SELECT ID_USUARIO, NOMBRE_USUARIO, CONTRASENA_HASH, ACTIVO FROM USUARIOS WHERE NOMBRE_USUARIO = :1"
+        cursor.execute(sql, [nombre_usuario])
+        
+        user_row = cursor.fetchone()
+        cursor.close()
+
+        # Validar si el usuario existe, está activo y la contraseña es correcta
+        if user_row is None:
+            return jsonify({"error": "Credenciales inválidas"}), 401
+        
+        # Desempaquetar los datos del usuario
+        id_usuario, db_nombre_usuario, db_contrasena_hash, db_activo = user_row
+
+        if db_activo == 0:
+            return jsonify({"error": "La cuenta de usuario está inactiva"}), 403
+
+        # Comparar el hash de la contraseña de la BD con la contraseña enviada
+        if not check_password_hash(db_contrasena_hash, contrasena):
+            return jsonify({"error": "Credenciales inválidas"}), 401
+
+        # Si todo es correcto, generar el token JWT
+        token_payload = {
+            'sub': id_usuario, # 'subject', el ID del usuario, es un estándar
+            'name': db_nombre_usuario,
+            'iat': datetime.datetime.now(datetime.timezone.utc), # 'issued at', hora de creación
+            'exp': datetime.datetime.now() + datetime.timedelta(hours=8) # 'expiration time', ej. 8 horas
+        }
+        
+        # Firmar el token con la SECRET_KEY de la configuración de Flask
+        token = jwt.encode(token_payload, app.config['SECRET_KEY'], algorithm='HS256')
+
+        return jsonify({"token": token})
+
+    except Exception as e:
+        app.logger.error(f"Error en /api/auth/login: {e}")
+        return jsonify(error="Ocurrió un error en el servidor"), 500
+
+# Registrar todas las rutas de mantenimientos (agregar esta línea)
+register_servicios_routes(app)
+register_mantenimientos_routes(app)
 
 if __name__ == '__main__':
     # El debug=True es genial para desarrollo
     app.run(debug=True)
-
