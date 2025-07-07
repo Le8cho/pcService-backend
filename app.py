@@ -11,6 +11,8 @@ import traceback # Útil para imprimir errores completos durante la depuración
 # Importar las rutas de mantenimientos
 from servicios_routes import register_servicios_routes  # Agregar esta línea
 
+from mantenimientos_routes import register_mantenimientos_routes  # Agregar esta línea
+
 # --- Inicialización del Cliente Oracle ---
 # Usa las variables importadas directamente desde config.py
 try:
@@ -92,6 +94,7 @@ def index():
 
 # Registrar todas las rutas de mantenimientos (agregar esta línea)
 register_servicios_routes(app)
+register_mantenimientos_routes(app)
 
 if __name__ == '__main__':
     # El debug=True es genial para desarrollo
