@@ -5,14 +5,12 @@ from config import Config, ORACLE_CLIENT_LIB_DIR, TNS_ADMIN
 from flask import Flask, g, jsonify, request
 from flask_cors import CORS
 
-<<<<<<< HEAD
 from flask import Flask, g, jsonify
 from flask_cors import CORS  # Agrega esta importación
 import oracledb  # <-- Mueve esta línea aquí, antes de usar oracledb
 import traceback # Útil para imprimir errores completos durante la depuración
 from routes.clientes import clientes_bp  # Importa el blueprint de clientes
 from db import init_oracle_pool, get_db  # Importa desde db.py
-=======
 import oracledb
 import traceback # Útil para imprimir errores completos durante la depuración
 from werkzeug.security import check_password_hash
@@ -23,7 +21,6 @@ import datetime
 from servicios_routes import register_servicios_routes  # Agregar esta línea
 
 from mantenimientos_routes import register_mantenimientos_routes  # Agregar esta línea
->>>>>>> origin/MergePrueba
 
 # --- Inicialización del Cliente Oracle ---
 try:
@@ -40,13 +37,8 @@ except Exception as e_init:
     
 # --- Creación de la Aplicación Flask ---
 app = Flask(__name__)
-<<<<<<< HEAD
 CORS(app)  # Habilita CORS para toda la app
 
-=======
-
-CORS(app)
->>>>>>> origin/MergePrueba
 # Carga las variables de la CLASE Config en el objeto app.config
 app.config.from_object(Config)
 
