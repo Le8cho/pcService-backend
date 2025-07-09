@@ -570,5 +570,4 @@ def register_mantenimientos_routes(app):
     app.route('/api/mantenimientos/proximos-vencer', methods=['GET'])(get_mantenimientos_proximos_vencer)
     
     # Rutas auxiliares
-    app.route('/api/clientes', methods=['GET'])(get_clientes)
     app.route('/api/dispositivos/cliente/<int:cliente_id>', methods=['GET'])(get_dispositivos_by_cliente)
