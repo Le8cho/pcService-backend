@@ -219,7 +219,7 @@ def search_servicios():
         current_app.logger.error(f"Error al buscar servicios: {e}")
         return jsonify(error=str(e)), 500
 
-def get_clientes():
+def get_clientesServicio():
     """Obtener todos los clientes (función auxiliar)"""
     try:
         conn = get_db_connection()
@@ -232,7 +232,8 @@ def get_clientes():
     except Exception as e:
         current_app.logger.error(f"Error al obtener clientes: {e}")
         return jsonify(error=str(e)), 500
-        
+
+
 def register_servicios_routes(app):
     """Registra todas las rutas de servicios en la aplicación Flask"""
     app.route('/api/servicios', methods=['GET'])(get_servicios)
@@ -240,3 +241,4 @@ def register_servicios_routes(app):
     app.route('/api/servicios/<int:id>', methods=['PUT'])(update_servicio)
     app.route('/api/servicios/<int:id>', methods=['DELETE'])(delete_servicio)
     app.route('/api/servicios/search', methods=['GET'])(search_servicios)
+    app.route('/api/clientesServicios', methods=['GET'])(get_clientesServicio)
