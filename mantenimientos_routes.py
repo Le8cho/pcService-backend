@@ -500,7 +500,7 @@ def get_mantenimientos_proximos_vencer():
         current_app.logger.error(f"Error al obtener mantenimientos próximos a vencer: {e}")
         return jsonify(error=str(e)), 500
 
-def get_clientes():
+def get_clientesMantenimiento():
     """Obtener todos los clientes"""
     try:
         conn = get_db_connection()
@@ -570,4 +570,5 @@ def register_mantenimientos_routes(app):
     app.route('/api/mantenimientos/proximos-vencer', methods=['GET'])(get_mantenimientos_proximos_vencer)
     
     # Rutas auxiliares
-    app.route('/api/dispositivos/cliente/<int:cliente_id>', methods=['GET'])(get_dispositivos_by_cliente)
+    app.route('/api/clientesMantenimiento', methods=['GET'])(get_clientesMantenimiento)
+    app.route('/api/dispositivo/cliente/<int:cliente_id>', methods=['GET'])(get_dispositivos_by_cliente)
