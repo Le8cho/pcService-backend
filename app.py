@@ -16,6 +16,10 @@ import traceback # Útil para imprimir errores completos durante la depuración
 from werkzeug.security import check_password_hash
 import jwt
 import datetime
+from datetime import datetime, timedelta
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 
 # Importar las rutas de mantenimientos
 from servicios_routes import register_servicios_routes  # Agregar esta línea
@@ -186,6 +190,23 @@ def login():
         app.logger.error(f"Error en /api/auth/login: {e}")
         return jsonify(error="Ocurrió un error en el servidor"), 500
 # Rutas para el CRUD de clientes
+@app.route('/api/clientes', methods=['GET'])
+def get_clientes():
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM clientes")
+        columns = [desc[0] for desc in cursor.description]
+        rows = cursor.fetchall()
+        results = []
+        for row in rows:
+            result = dict(zip(columns, map(str, row)))
+            results.append(result)
+        cursor.close()
+        return jsonify(results)
+    except Exception as e:
+        app.logger.error(f"Error al obtener clientes: {e}")
+        return jsonify(error=str(e)), 500
 
 @app.route('/api/clientes', methods=['POST'])
 def crear_cliente():
