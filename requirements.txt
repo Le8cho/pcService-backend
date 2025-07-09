@@ -1,3 +1,5 @@
 flask
 oracledb
 python-dotenv
+pyjwt
+flask_cors 
