@@ -1,0 +1,2 @@
+ID_LICENCIA,DETALLES,FEC_INICIO,FECHA_FIN,FECHA_AVISO,EMAIL_CTACLIE,PASSW_CTACLIE,NORM_M365,USER_M365,PASS_M365M-006,,2025-07-10,2026-07-09,2026-07-09,mirror@gmail.com,mirrorpassword,mirror,mirror,mirror
+M-007,Mirror,2025-07-10,2026-07-09,2025-07-17,mirror@gmail.com,mirrorpassword,mirror,mirror,mirror

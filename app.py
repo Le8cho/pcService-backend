@@ -25,6 +25,17 @@ import smtplib
 from servicios_routes import register_servicios_routes  # Agregar esta línea
 
 from mantenimientos_routes import register_mantenimientos_routes  # Agregar esta línea
+from db_mirror import create_record, update_record, delete_record
+import logging
+logging.basicConfig(level=logging.INFO)
+
+# Definir campos de las tablas relevantes
+DISPOSITIVOS_FIELDS = ["ID_DISPOSITIVO", "ID_CLIENTE", "TIPO_DISPOSITIVO", "MARCA", "MODELO"]
+OPERACIONES_FIELDS = ["ID_OPERACION", "ID_CLIENTE", "FECHA", "TIPO_OPERACION", "INGRESO", "EGRESO"]
+VENTAS_FIELDS = ["ID_OPERACION", "ID_LICENCIA"]
+ANTIVIRUS_FIELDS = ["ID_LICENCIA", "DETALLES", "FEC_INICIO", "FECHA_FIN", "FECHA_AVISO", "TIME_LICENCIA", "NOM_ANTIVIRUS", "USER_ANT"]
+MICROSOFT365_FIELDS = ["ID_LICENCIA", "DETALLES", "FEC_INICIO", "FECHA_FIN", "FECHA_AVISO", "EMAIL_CTACLIE", "PASSW_CTACLIE", "NORM_M365", "USER_M365", "PASS_M365"]
+WINDOWS_FIELDS = ["ID_LICENCIA", "DETALLES", "FEC_INICIO", "FECHA_FIN", "FECHA_AVISO", "TIME_LICENCIA", "SO_ACTIVADO", "KEY", "KEY_TIPO"]
 
 # --- Inicialización del Cliente Oracle ---
 try:
@@ -424,6 +435,29 @@ def registrar_antivirus():
 
         conn.commit()
         cursor.close()
+        # MIRROR: Crear en OPERACIONES, VENTAS y ANTIVIRUS
+        create_record('OPERACIONES', {
+            "ID_OPERACION": id_operacion,
+            "ID_CLIENTE": id_cliente,
+            "FECHA": fecha_inicio,  # Usar fecha_inicio en lugar de None
+            "TIPO_OPERACION": 'VENTA',
+            "INGRESO": ingreso,
+            "EGRESO": egreso
+        }, OPERACIONES_FIELDS)
+        create_record('VENTAS', {
+            "ID_OPERACION": id_operacion,
+            "ID_LICENCIA": id_licencia
+        }, VENTAS_FIELDS)
+        create_record('ANTIVIRUS', {
+            "ID_LICENCIA": id_licencia,
+            "DETALLES": detalles,
+            "FEC_INICIO": fecha_inicio,
+            "FECHA_FIN": fecha_fin,
+            "FECHA_AVISO": fecha_aviso,
+            "TIME_LICENCIA": tiempo_licencia,
+            "NOM_ANTIVIRUS": nombre_antivirus,
+            "USER_ANT": user_antivirus
+        }, ANTIVIRUS_FIELDS)
         return jsonify({'message': 'Licencia Antivirus registrada correctamente', 'idLicencia': id_licencia})
     except Exception as e:
         app.logger.error(f"Error al registrar antivirus: {e}")
@@ -491,6 +525,34 @@ def registrar_ofimatica():
 
         conn.commit()
         cursor.close()
+        # MIRROR: Crear en OPERACIONES, VENTAS y MICROSOFT365
+        app.logger.info(f"[MICROSOFT365] Creando mirror para OPERACIONES con id_operacion: {id_operacion}")
+        create_record('OPERACIONES', {
+            "ID_OPERACION": id_operacion,
+            "ID_CLIENTE": id_cliente,
+            "FECHA": fecha_inicio,  # Usar fecha_inicio en lugar de None
+            "TIPO_OPERACION": 'VENTA',
+            "INGRESO": ingreso,
+            "EGRESO": egreso
+        }, OPERACIONES_FIELDS)
+        app.logger.info(f"[MICROSOFT365] Creando mirror para VENTAS con id_operacion: {id_operacion}, id_licencia: {id_licencia}")
+        create_record('VENTAS', {
+            "ID_OPERACION": id_operacion,
+            "ID_LICENCIA": id_licencia
+        }, VENTAS_FIELDS)
+        app.logger.info(f"[MICROSOFT365] Creando mirror para MICROSOFT365 con id_licencia: {id_licencia}")
+        create_record('MICROSOFT365', {
+            "ID_LICENCIA": id_licencia,
+            "DETALLES": detalles,
+            "FEC_INICIO": fecha_inicio,
+            "FECHA_FIN": fecha_fin,
+            "FECHA_AVISO": fecha_aviso,
+            "EMAIL_CTACLIE": email_ctacliente,
+            "PASSW_CTACLIE": passw_ctacliente,
+            "NORM_M365": norma_m365,
+            "USER_M365": user_m365,
+            "PASS_M365": pass_m365
+        }, MICROSOFT365_FIELDS)
         return jsonify({'message': 'Licencia Ofimática registrada correctamente', 'idLicencia': id_licencia})
     except Exception as e:
         app.logger.error(f"Error al registrar ofimatica: {e}")
@@ -568,6 +630,33 @@ def registrar_sistema_operativo():
 
         conn.commit()
         cursor.close()
+        # MIRROR: Crear en OPERACIONES, VENTAS y WINDOWS
+        app.logger.info(f"[WINDOWS] Creando mirror para OPERACIONES con id_operacion: {id_operacion}")
+        create_record('OPERACIONES', {
+            "ID_OPERACION": id_operacion,
+            "ID_CLIENTE": id_cliente,
+            "FECHA": fecha_inicio,  # Usar fecha_inicio en lugar de None
+            "TIPO_OPERACION": 'VENTA',
+            "INGRESO": ingreso,
+            "EGRESO": egreso
+        }, OPERACIONES_FIELDS)
+        app.logger.info(f"[WINDOWS] Creando mirror para VENTAS con id_operacion: {id_operacion}, id_licencia: {id_licencia}")
+        create_record('VENTAS', {
+            "ID_OPERACION": id_operacion,
+            "ID_LICENCIA": id_licencia
+        }, VENTAS_FIELDS)
+        app.logger.info(f"[WINDOWS] Creando mirror para WINDOWS con id_licencia: {id_licencia}")
+        create_record('WINDOWS', {
+            "ID_LICENCIA": id_licencia,
+            "DETALLES": detalles,
+            "FEC_INICIO": fecha_inicio,
+            "FECHA_FIN": fecha_fin,
+            "FECHA_AVISO": fecha_aviso,
+            "TIME_LICENCIA": tiempo_licencia,
+            "SO_ACTIVADO": so_activado,
+            "KEY": key,
+            "KEY_TIPO": key_tipo
+        }, WINDOWS_FIELDS)
         return jsonify({'message': 'Licencia de Sistema Operativo registrada correctamente', 'idLicencia': id_licencia})
     except Exception as e:
         app.logger.error(f"Error al registrar sistema operativo: {e}")
@@ -602,7 +691,18 @@ def create_dispositivo():
             VALUES (:id_cliente, :tipo, :marca, :modelo)
         """, id_cliente=data['ID_CLIENTE'], tipo=data['TIPO_DISPOSITIVO'], marca=data['MARCA'], modelo=data['MODELO'])
         conn.commit()
+        # Obtener el ID recién insertado
+        cursor.execute("SELECT MAX(ID_DISPOSITIVO) FROM DISPOSITIVOS")
+        id_dispositivo = cursor.fetchone()[0]
         cursor.close()
+        # MIRROR: Crear en DISPOSITIVOS
+        create_record('DISPOSITIVOS', {
+            "ID_DISPOSITIVO": id_dispositivo,
+            "ID_CLIENTE": data['ID_CLIENTE'],
+            "TIPO_DISPOSITIVO": data['TIPO_DISPOSITIVO'],
+            "MARCA": data['MARCA'],
+            "MODELO": data['MODELO']
+        }, DISPOSITIVOS_FIELDS)
         return jsonify({'message': 'Dispositivo creado correctamente'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -620,6 +720,14 @@ def update_dispositivo(id):
         """, id_cliente=data['ID_CLIENTE'], tipo=data['TIPO_DISPOSITIVO'], marca=data['MARCA'], modelo=data['MODELO'], id=id)
         conn.commit()
         cursor.close()
+        # MIRROR: Actualizar en DISPOSITIVOS
+        update_record('DISPOSITIVOS', id, {
+            "ID_DISPOSITIVO": id,
+            "ID_CLIENTE": data['ID_CLIENTE'],
+            "TIPO_DISPOSITIVO": data['TIPO_DISPOSITIVO'],
+            "MARCA": data['MARCA'],
+            "MODELO": data['MODELO']
+        }, DISPOSITIVOS_FIELDS)
         return jsonify({'message': 'Dispositivo actualizado correctamente'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -632,6 +740,8 @@ def delete_dispositivo(id):
         cursor.execute("DELETE FROM DISPOSITIVOS WHERE ID_DISPOSITIVO=:id", id=id)
         conn.commit()
         cursor.close()
+        # MIRROR: Eliminar en DISPOSITIVOS
+        delete_record('DISPOSITIVOS', id, DISPOSITIVOS_FIELDS)
         return jsonify({'message': 'Dispositivo eliminado correctamente'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
