@@ -1,10 +1,25 @@
 # db_mirror.py
 import os
 import csv
+import re
 from flask import current_app
+import datetime
 
 # Ruta base para los archivos de texto que actúan como espejo de la BD
 BASE_DIR = os.path.join(os.path.dirname(__file__), 'db_mirror_txt')
+
+def normalize_id(id_value):
+    """
+    Normaliza un ID removiendo corchetes y espacios extra.
+    Ejemplo: '[157]' -> '157', '157' -> '157'
+    """
+    if id_value is None:
+        return None
+    # Convertir a string y remover corchetes, espacios y caracteres extra
+    normalized = str(id_value).strip()
+    normalized = re.sub(r'[\[\]]', '', normalized)  # Remover corchetes
+    normalized = normalized.strip()  # Remover espacios extra
+    return normalized
 
 def get_mirror_path(table_name):
     """Construye la ruta al archivo de texto para una tabla dada."""
@@ -59,21 +74,28 @@ def update_record(table_name, record_id, new_data, fields, id_field=None):
         id_field = id_field or fields[0]
         updated_lines = []
         record_found = False
+        normalized_search_id = normalize_id(record_id)
+        
         with open(filepath, 'r', encoding='utf-8', newline='') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                if row.get(id_field) == str(record_id):
+                row_id = normalize_id(row.get(id_field))
+                if row_id == normalized_search_id:
                     updated_lines.append({k: new_data.get(k, "") for k in fields})
                     record_found = True
+                    current_app.logger.info(f"MIRROR: Encontrado registro con {id_field}={row.get(id_field)} (normalizado: {row_id})")
                 else:
                     updated_lines.append(row)
+        
         if not record_found:
             updated_lines.append({k: new_data.get(k, "") for k in fields})
-            current_app.logger.info(f"MIRROR: Registro con {id_field}={record_id} no encontrado en {filepath}. Se añadió como nuevo.")
+            current_app.logger.info(f"MIRROR: Registro con {id_field}={record_id} (normalizado: {normalized_search_id}) no encontrado en {filepath}. Se añadió como nuevo.")
+        
         with open(filepath, 'w', encoding='utf-8', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=fields)
             writer.writeheader()
             writer.writerows(updated_lines)
+        
         if record_found:
             current_app.logger.info(f"MIRROR: Registro con {id_field}={record_id} actualizado en {filepath}")
     except Exception as e:
@@ -91,20 +113,26 @@ def delete_record(table_name, record_id, fields, id_field=None):
         id_field = id_field or fields[0]
         kept_lines = []
         record_deleted = False
+        normalized_search_id = normalize_id(record_id)
+        
         with open(filepath, 'r', encoding='utf-8', newline='') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                if row.get(id_field) == str(record_id):
+                row_id = normalize_id(row.get(id_field))
+                if row_id == normalized_search_id:
                     record_deleted = True
+                    current_app.logger.info(f"MIRROR: Eliminando registro con {id_field}={row.get(id_field)} (normalizado: {row_id})")
                     continue
                 kept_lines.append(row)
+        
         with open(filepath, 'w', encoding='utf-8', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=fields)
             writer.writeheader()
             writer.writerows(kept_lines)
+        
         if record_deleted:
             current_app.logger.info(f"MIRROR: Registro con {id_field}={record_id} eliminado de {filepath}")
         else:
-            current_app.logger.warning(f"MIRROR WARNING: Registro con {id_field}={record_id} no encontrado para eliminar en {filepath}")
+            current_app.logger.warning(f"MIRROR WARNING: Registro con {id_field}={record_id} (normalizado: {normalized_search_id}) no encontrado para eliminar en {filepath}")
     except Exception as e:
         current_app.logger.error(f"MIRROR ERROR en delete_record para tabla {table_name}: {e}")

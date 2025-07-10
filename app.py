@@ -16,7 +16,7 @@ import traceback # Útil para imprimir errores completos durante la depuración
 from werkzeug.security import check_password_hash
 import jwt
 import datetime
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
@@ -188,8 +188,8 @@ def login():
         token_payload = {
             'sub': id_usuario, # 'subject', el ID del usuario, es un estándar
             'name': db_nombre_usuario,
-            'iat': datetime.datetime.now(datetime.timezone.utc), # 'issued at', hora de creación
-            'exp': datetime.datetime.now() + datetime.timedelta(hours=8) # 'expiration time', ej. 8 horas
+            'iat': datetime.now(timezone.utc), # 'issued at', hora de creación
+            'exp': datetime.now(timezone.utc) + timedelta(hours=8) # 'expiration time', ej. 8 horas
         }
         
         # Firmar el token con la SECRET_KEY de la configuración de Flask
