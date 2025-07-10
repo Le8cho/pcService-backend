@@ -1,0 +1,2 @@
+ID_OPERACION,DETALLE_SERVICIO,TECNICO_ENCARGADO,DURACION_ESTIMADA
+217,Se hace una prueba del servidor Mirror,TecnicoMirrro,2 Horas

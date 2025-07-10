@@ -1,0 +1,3 @@
+ID_CLIENTE,NOMBRE,APELLIDO,CELULAR,DIRECCION,CORREO
+[155],Prueba4,Prueba4,944046722,Prueba4,hola.123@gmail.com
+[156],PruebaMIrror,PruebaMIrror,944046722,PruebaMIrror,hola.123@gmail.com

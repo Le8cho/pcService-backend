@@ -1,0 +1,13 @@
+ID_OPERACION,DESCRIPCION,FRECUENCIA,PROX_MANTENIMIENTO,TIPO_MANTENIMIENTO
+
+187,Dell OptiPlex 7090 (PC Escritorio),Trimestral,2025-07-10,PREVENTIVO
+188,Se realizo una bella mantenimiento a este bello equipo muy querido por el bello cliente,Trimestral,,PREVENTIVO
+191,Hola,Bimestral,,PREVENTIVO
+193,Mantenimiento preventivo anual de impresora,Anual,2025-12-01,PREVENTIVO
+200,Hola,Semestral,2025-07-10,PREVENTIVO
+204,Mantenimiento preventivo anual de impresora,Anual,2025-12-01,PREVENTIVO
+205,Mantenimiento preventivo anual de impresora,Anual,2025-12-01,PREVENTIVO
+214,Hola,Bimestral,2025-07-10,PREVENTIVO
+215,Hola,Trimestral,2025-07-10,PREVENTIVO
+216,Prueba10,Bimestral,2025-09-10,PREVENTIVO
+218,Mantenimiento mirrror,Trimestral,2025-10-10,PREVENTIVO

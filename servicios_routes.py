@@ -3,6 +3,7 @@
 from flask import g, jsonify, request, current_app
 import oracledb
 from datetime import datetime, date
+from db_mirror import create_record, update_record, delete_record
 
 # --- Funciones Helper (sin cambios) ---
 def serialize_dates(obj):
@@ -69,6 +70,10 @@ def get_servicios():
         current_app.logger.error(f"Error al obtener servicios: {e}")
         return jsonify(error=str(e)), 500
 
+# Definir campos de las tablas relevantes
+OPERACIONES_FIELDS = ["ID_OPERACION", "ID_CLIENTE", "FECHA", "TIPO_OPERACION", "INGRESO", "EGRESO"]
+SERVICIOS_FIELDS = ["ID_OPERACION", "DETALLE_SERVICIO", "TECNICO_ENCARGADO", "DURACION_ESTIMADA"]
+
 def create_servicio():
     """Crear un nuevo servicio"""
     try:
@@ -112,7 +117,21 @@ def create_servicio():
         
         conn.commit()
         cursor.close()
-        
+        # MIRROR: Crear en OPERACIONES y SERVICIOS
+        create_record('OPERACIONES', {
+            "ID_OPERACION": id_operacion,
+            "ID_CLIENTE": data['id_cliente'],
+            "FECHA": (parse_date_for_oracle(data.get('fecha')) or date.today()),
+            "TIPO_OPERACION": 'SERVICIO',
+            "INGRESO": ingreso_valor,
+            "EGRESO": egreso_valor
+        }, OPERACIONES_FIELDS)
+        create_record('SERVICIOS', {
+            "ID_OPERACION": id_operacion,
+            "DETALLE_SERVICIO": data['detalle'],
+            "TECNICO_ENCARGADO": data.get('tecnico_encargado'),
+            "DURACION_ESTIMADA": data.get('duracion_estimada')
+        }, SERVICIOS_FIELDS)
         return jsonify({'message': 'Servicio creado exitosamente', 'id_operacion': id_operacion}), 201
         
     except Exception as e:
@@ -157,6 +176,19 @@ def update_servicio(id):
             
         conn.commit()
         cursor.close()
+        # MIRROR: Actualizar en OPERACIONES y SERVICIOS
+        update_record('OPERACIONES', id, {
+            "ID_OPERACION": id,
+            "FECHA": parse_date_for_oracle(data.get('fecha')),
+            "INGRESO": data.get('ingreso'),
+            "EGRESO": data.get('egreso')
+        }, OPERACIONES_FIELDS)
+        update_record('SERVICIOS', id, {
+            "ID_OPERACION": id,
+            "DETALLE_SERVICIO": data.get('detalle'),
+            "TECNICO_ENCARGADO": data.get('tecnico_encargado'),
+            "DURACION_ESTIMADA": data.get('duracion_estimada')
+        }, SERVICIOS_FIELDS)
         return jsonify(message="Servicio actualizado exitosamente")
         
     except Exception as e:
@@ -179,6 +211,9 @@ def delete_servicio(id):
             return jsonify(error="Servicio no encontrado"), 404
         conn.commit()
         cursor.close()
+        # MIRROR: Eliminar en SERVICIOS y OPERACIONES
+        delete_record('SERVICIOS', id, SERVICIOS_FIELDS)
+        delete_record('OPERACIONES', id, OPERACIONES_FIELDS)
         return jsonify(message="Servicio eliminado exitosamente")
     except Exception as e:
         if 'conn' in locals() and conn: conn.rollback()

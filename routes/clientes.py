@@ -1,7 +1,11 @@
 from flask import Blueprint, request, jsonify, current_app
 from db import get_db  # Cambia la importación aquí
+from db_mirror import create_record, update_record, delete_record
 
 clientes_bp = Blueprint('clientes', __name__)
+
+# Definir los campos de la tabla CLIENTES en el orden correcto
+CLIENTES_FIELDS = ["ID_CLIENTE", "NOMBRE", "APELLIDO", "CELULAR", "DIRECCION", "CORREO"]
 
 # Obtener todos los clientes
 @clientes_bp.route('/', methods=['GET'])
@@ -87,6 +91,15 @@ def crear_cliente():
         conn.commit()
         cliente_id = id_cliente_var.getvalue()
         cursor.close()
+        # Llamar a create_record de db_mirror con la lista de campos
+        create_record('CLIENTES', {
+            "ID_CLIENTE": cliente_id,
+            "NOMBRE": nombre,
+            "APELLIDO": apellido,
+            "CELULAR": celular,
+            "DIRECCION": direccion,
+            "CORREO": correo
+        }, CLIENTES_FIELDS)
         return jsonify(
             id_cliente=cliente_id,
             nombre=nombre,
@@ -132,6 +145,15 @@ def actualizar_cliente(id_cliente):
             return jsonify(error="Cliente no encontrado"), 404
         conn.commit()
         cursor.close()
+        # Llamar a update_record de db_mirror con la lista de campos
+        update_record('CLIENTES', id_cliente, {
+            "ID_CLIENTE": id_cliente,
+            "NOMBRE": nombre,
+            "APELLIDO": apellido,
+            "CELULAR": celular,
+            "DIRECCION": direccion,
+            "CORREO": correo
+        }, CLIENTES_FIELDS)
         return jsonify(message="Cliente actualizado")
     except Exception as e:
         current_app.logger.error(f"Error al actualizar cliente: {e}")
@@ -149,6 +171,8 @@ def eliminar_cliente(id_cliente):
             return jsonify(error="Cliente no encontrado"), 404
         conn.commit()
         cursor.close()
+        # Llamar a delete_record de db_mirror con la lista de campos
+        delete_record('CLIENTES', id_cliente, CLIENTES_FIELDS)
         return jsonify(message="Cliente eliminado")
     except Exception as e:
         current_app.logger.error(f"Error al eliminar cliente: {e}")
