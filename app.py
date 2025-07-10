@@ -282,6 +282,22 @@ def eliminar_cliente(id):
         app.logger.error(f"Error al eliminar cliente: {e}")
         return jsonify(error=str(e)), 500
 
+@app.route('/api/clientesDispositivos', methods=['GET'])
+def get_clientes_dispositivos():
+    """Obtener clientes para el módulo de dispositivos"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT ID_CLIENTE, NOMBRE, APELLIDO FROM CLIENTES ORDER BY NOMBRE, APELLIDO")
+        columns = [desc[0].lower() for desc in cursor.description]
+        rows = cursor.fetchall()
+        results = [dict(zip(columns, row)) for row in rows]
+        cursor.close()
+        return jsonify(results)
+    except Exception as e:
+        app.logger.error(f"Error al obtener clientes para dispositivos: {e}")
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/licencias/<tipo_licencia>', methods=['GET'])
 def obtener_licencias_por_tipo(tipo_licencia):
