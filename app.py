@@ -1075,13 +1075,13 @@ def top_clientes_gasto_mes():
         conn = get_db()
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT c.NOMBRE, c.APELLIDO, c.CORREO, SUM(o.INGRESO - o.EGRESO) AS TOTAL_GASTADO
+            SELECT c.NOMBRE, c.APELLIDO, c.CORREO, SUM(o.INGRESO - NVL(o.EGRESO, 0)) AS TOTAL_GASTADO
             FROM CLIENTES c
             JOIN OPERACIONES o ON c.ID_CLIENTE = o.ID_CLIENTE
             WHERE EXTRACT(MONTH FROM o.FECHA) = EXTRACT(MONTH FROM SYSDATE)
               AND EXTRACT(YEAR FROM o.FECHA) = EXTRACT(YEAR FROM SYSDATE)
             GROUP BY c.NOMBRE, c.APELLIDO, c.CORREO
-            HAVING SUM(o.INGRESO - o.EGRESO) > 0
+            HAVING SUM(o.INGRESO - NVL(o.EGRESO, 0)) > 0
             ORDER BY TOTAL_GASTADO DESC
             FETCH FIRST 10 ROWS ONLY
         ''')
