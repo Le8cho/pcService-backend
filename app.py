@@ -395,19 +395,26 @@ def generar_nuevo_id_licencia(prefijo, tabla):
         next_num = 1
     return f"{prefijo}{next_num:03d}"
 
+def parse_fecha(fecha_str):
+    if not fecha_str:
+        return None
+    for fmt in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%S.%fZ'):
+        try:
+            return datetime.strptime(fecha_str, fmt).strftime('%Y-%m-%d')
+        except Exception:
+            continue
+    raise ValueError(f"Formato de fecha no soportado: {fecha_str}")
 
 @app.route('/api/licencias/registrar-antivirus', methods=['POST'])
 def registrar_antivirus():
     try:
         data = request.json
-        # Debug: imprime los datos recibidos para ver si llegan correctamente
         print("DEBUG registrar-antivirus data:", data)
-        # Generar ID automático para Antivirus
         id_licencia = generar_nuevo_id_licencia('A-', 'ANTIVIRUS')
         detalles = data.get('detalles', '')
-        fecha_inicio = data.get('fechaInicio')
-        fecha_fin = data.get('fechaFin')
-        fecha_aviso = data.get('fechaAviso')
+        fecha_inicio = parse_fecha(data.get('fechaInicio'))
+        fecha_fin = parse_fecha(data.get('fechaFin'))
+        fecha_aviso = parse_fecha(data.get('fechaAviso'))
         tiempo_licencia = data.get('tiempoLicencia', '')
         nombre_antivirus = data.get('nombreAntivirus', '')
         user_antivirus = data.get('userAntivirus', '')
@@ -488,9 +495,9 @@ def registrar_ofimatica():
         id_licencia = generar_nuevo_id_licencia('M-', 'MICROSOFT365')
 
         detalles = data.get('detalles', '')
-        fecha_inicio = data.get('fechaInicio')
-        fecha_fin = data.get('fechaFin')
-        fecha_aviso = data.get('fechaAviso')
+        fecha_inicio = parse_fecha(data.get('fechaInicio'))
+        fecha_fin = parse_fecha(data.get('fechaFin'))
+        fecha_aviso = parse_fecha(data.get('fechaAviso'))
         tiempo_licencia = data.get('tiempoLicencia', '')
         email_ctacliente = data.get('emailCtacliente', '')
         passw_ctacliente = data.get('passwCtacliente', '')
@@ -586,9 +593,9 @@ def registrar_sistema_operativo():
         
         # --- CAMPOS COMUNES ---
         detalles = data.get('detalles', '')
-        fecha_inicio = data.get('fechaInicio')
-        fecha_fin = data.get('fechaFin')
-        fecha_aviso = data.get('fechaAviso')
+        fecha_inicio = parse_fecha(data.get('fechaInicio'))
+        fecha_fin = parse_fecha(data.get('fechaFin'))
+        fecha_aviso = parse_fecha(data.get('fechaAviso'))
         tiempo_licencia = data.get('tiempoLicencia', '')
         id_cliente = data.get('idCliente')
         ingreso = data.get('ingreso', 0)
@@ -1020,6 +1027,278 @@ def enviar_alerta_manual(id_licencia):
 # Registrar todas las rutas de mantenimientos (agregar esta línea)
 register_servicios_routes(app)
 register_mantenimientos_routes(app)
+
+@app.route('/api/estadisticas/mes', methods=['GET'])
+def estadisticas_mes():
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Clientes registrados este mes (contar clientes que tienen operaciones este mes)
+        cursor.execute('''
+            SELECT COUNT(DISTINCT c.ID_CLIENTE) FROM CLIENTES c
+            JOIN OPERACIONES o ON c.ID_CLIENTE = o.ID_CLIENTE
+            WHERE EXTRACT(MONTH FROM o.FECHA) = EXTRACT(MONTH FROM SYSDATE)
+              AND EXTRACT(YEAR FROM o.FECHA) = EXTRACT(YEAR FROM SYSDATE)
+        ''')
+        clientes_mes = cursor.fetchone()[0]
+        
+        # Operaciones de este mes
+        cursor.execute('''
+            SELECT COUNT(*) FROM OPERACIONES
+            WHERE EXTRACT(MONTH FROM FECHA) = EXTRACT(MONTH FROM SYSDATE)
+              AND EXTRACT(YEAR FROM FECHA) = EXTRACT(YEAR FROM SYSDATE)
+        ''')
+        operaciones_mes = cursor.fetchone()[0]
+        
+        # Ganancia de este mes (suma de ingreso - egreso)
+        cursor.execute('''
+            SELECT NVL(SUM(INGRESO),0) - NVL(SUM(EGRESO),0) FROM OPERACIONES
+            WHERE EXTRACT(MONTH FROM FECHA) = EXTRACT(MONTH FROM SYSDATE)
+              AND EXTRACT(YEAR FROM FECHA) = EXTRACT(YEAR FROM SYSDATE)
+        ''')
+        ganancia_mes = cursor.fetchone()[0]
+        
+        cursor.close()
+        return jsonify({
+            'clientesMes': clientes_mes,
+            'operacionesMes': operaciones_mes,
+            'gananciaMes': ganancia_mes
+        })
+    except Exception as e:
+        app.logger.error(f"Error en estadísticas del mes: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/clientes/top-gasto-mes', methods=['GET'])
+def top_clientes_gasto_mes():
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT c.NOMBRE, c.APELLIDO, c.CORREO, SUM(o.INGRESO - o.EGRESO) AS TOTAL_GASTADO
+            FROM CLIENTES c
+            JOIN OPERACIONES o ON c.ID_CLIENTE = o.ID_CLIENTE
+            WHERE EXTRACT(MONTH FROM o.FECHA) = EXTRACT(MONTH FROM SYSDATE)
+              AND EXTRACT(YEAR FROM o.FECHA) = EXTRACT(YEAR FROM SYSDATE)
+            GROUP BY c.NOMBRE, c.APELLIDO, c.CORREO
+            HAVING SUM(o.INGRESO - o.EGRESO) > 0
+            ORDER BY TOTAL_GASTADO DESC
+            FETCH FIRST 10 ROWS ONLY
+        ''')
+        results = [
+            {
+                'nombre': row[0],
+                'apellido': row[1],
+                'correo': row[2],
+                'total_gastado': float(row[3]) if row[3] is not None else 0.0
+            }
+            for row in cursor.fetchall()
+        ]
+        cursor.close()
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ingresos/ultimos-4-meses', methods=['GET'])
+def ingresos_ultimos_4_meses():
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT
+                TO_CHAR(o.FECHA, 'Mon YYYY', 'NLS_DATE_LANGUAGE=SPANISH') AS MES,
+                o.TIPO_OPERACION,
+                SUM(o.INGRESO) AS TOTAL_INGRESO
+            FROM OPERACIONES o
+            WHERE o.FECHA >= ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -3)
+            GROUP BY TO_CHAR(o.FECHA, 'Mon YYYY', 'NLS_DATE_LANGUAGE=SPANISH'), o.TIPO_OPERACION
+            ORDER BY MIN(o.FECHA) ASC, o.TIPO_OPERACION
+        ''')
+        rows = cursor.fetchall()
+        cursor.close()
+        # Procesar los datos para devolverlos en formato adecuado para el gráfico
+        meses = []
+        data = {
+            'VENTA': [],
+            'MANTENIMIENTO': [],
+            'SERVICIO': []
+        }
+        meses_set = set()
+        for row in rows:
+            mes = row[0].capitalize()
+            tipo = row[1].upper()
+            total = float(row[2]) if row[2] is not None else 0.0
+            meses_set.add(mes)
+        meses = sorted(list(meses_set), key=lambda m: [int(m.split()[1]), ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'].index(m.split()[0][:3])])
+        # Inicializar los datos
+        for tipo in data:
+            data[tipo] = [0.0 for _ in meses]
+        for row in rows:
+            mes = row[0].capitalize()
+            tipo = row[1].upper()
+            total = float(row[2]) if row[2] is not None else 0.0
+            if tipo in data:
+                idx = meses.index(mes)
+                data[tipo][idx] = total
+        return jsonify({
+            'meses': meses,
+            'ingresos': data
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/licencias/porcentaje-ventas-mes', methods=['GET'])
+def porcentaje_ventas_licencias_mes():
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        # Total de ventas del mes
+        cursor.execute('''
+            SELECT COUNT(*) FROM VENTAS v
+            JOIN OPERACIONES o ON v.ID_OPERACION = o.ID_OPERACION
+            WHERE EXTRACT(MONTH FROM o.FECHA) = EXTRACT(MONTH FROM SYSDATE)
+              AND EXTRACT(YEAR FROM o.FECHA) = EXTRACT(YEAR FROM SYSDATE)
+        ''')
+        total_ventas = cursor.fetchone()[0]
+        # Ventas por tipo
+        tipos = [
+            ('Antivirus', 'ANTIVIRUS'),
+            ('Microsoft 365', 'MICROSOFT365'),
+            ('Windows', 'WINDOWS')
+        ]
+        resultados = []
+        for nombre, tabla in tipos:
+            cursor.execute(f'''
+                SELECT COUNT(*) FROM {tabla} l
+                JOIN VENTAS v ON l.ID_LICENCIA = v.ID_LICENCIA
+                JOIN OPERACIONES o ON v.ID_OPERACION = o.ID_OPERACION
+                WHERE EXTRACT(MONTH FROM o.FECHA) = EXTRACT(MONTH FROM SYSDATE)
+                  AND EXTRACT(YEAR FROM o.FECHA) = EXTRACT(YEAR FROM SYSDATE)
+            ''')
+            cantidad = cursor.fetchone()[0]
+            porcentaje = round((cantidad / total_ventas) * 100, 2) if total_ventas > 0 else 0.0
+            resultados.append({
+                'nombre': nombre,
+                'cantidad': cantidad,
+                'porcentaje': porcentaje
+            })
+        cursor.close()
+        return jsonify(resultados)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/notificaciones/vencimientos-semana', methods=['GET'])
+def notificaciones_vencimientos_semana():
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        # Licencias próximas a vencer
+        cursor.execute('''
+            SELECT c.NOMBRE, c.APELLIDO, c.CORREO, l.ID_LICENCIA, l.FECHA_FIN, 'Antivirus' as TIPO
+            FROM ANTIVIRUS l
+            JOIN VENTAS v ON l.ID_LICENCIA = v.ID_LICENCIA
+            JOIN OPERACIONES o ON v.ID_OPERACION = o.ID_OPERACION
+            JOIN CLIENTES c ON o.ID_CLIENTE = c.ID_CLIENTE
+            WHERE l.FECHA_FIN BETWEEN TRUNC(SYSDATE) AND TRUNC(SYSDATE) + 7
+            UNION ALL
+            SELECT c.NOMBRE, c.APELLIDO, c.CORREO, l.ID_LICENCIA, l.FECHA_FIN, 'Microsoft 365' as TIPO
+            FROM MICROSOFT365 l
+            JOIN VENTAS v ON l.ID_LICENCIA = v.ID_LICENCIA
+            JOIN OPERACIONES o ON v.ID_OPERACION = o.ID_OPERACION
+            JOIN CLIENTES c ON o.ID_CLIENTE = c.ID_CLIENTE
+            WHERE l.FECHA_FIN BETWEEN TRUNC(SYSDATE) AND TRUNC(SYSDATE) + 7
+            UNION ALL
+            SELECT c.NOMBRE, c.APELLIDO, c.CORREO, l.ID_LICENCIA, l.FECHA_FIN, 'Windows' as TIPO
+            FROM WINDOWS l
+            JOIN VENTAS v ON l.ID_LICENCIA = v.ID_LICENCIA
+            JOIN OPERACIONES o ON v.ID_OPERACION = o.ID_OPERACION
+            JOIN CLIENTES c ON o.ID_CLIENTE = c.ID_CLIENTE
+            WHERE l.FECHA_FIN BETWEEN TRUNC(SYSDATE) AND TRUNC(SYSDATE) + 7
+        ''')
+        licencias = [
+            {
+                'cliente': f"{row[0]} {row[1]}",
+                'correo': row[2],
+                'id_licencia': row[3],
+                'fecha': row[4].strftime('%d/%m/%Y'),
+                'tipo': row[5]
+            }
+            for row in cursor.fetchall()
+        ]
+        # Mantenimientos próximos
+        cursor.execute('''
+            SELECT c.NOMBRE, c.APELLIDO, c.CORREO, m.ID_OPERACION, m.PROX_MANTENIMIENTO
+            FROM MANTENIMIENTOS m
+            JOIN OPERACIONES o ON m.ID_OPERACION = o.ID_OPERACION
+            JOIN CLIENTES c ON o.ID_CLIENTE = c.ID_CLIENTE
+            WHERE m.PROX_MANTENIMIENTO BETWEEN TRUNC(SYSDATE) AND TRUNC(SYSDATE) + 7
+        ''')
+        mantenimientos = [
+            {
+                'cliente': f"{row[0]} {row[1]}",
+                'correo': row[2],
+                'id_operacion': row[3],
+                'fecha': row[4].strftime('%d/%m/%Y')
+            }
+            for row in cursor.fetchall()
+        ]
+        cursor.close()
+        return jsonify({
+            'licencias': licencias,
+            'mantenimientos': mantenimientos
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ganancia/mes-vs-anterior', methods=['GET'])
+def ganancia_mes_vs_anterior():
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        # Ganancia este mes
+        cursor.execute('''
+            SELECT NVL(SUM(INGRESO),0) - NVL(SUM(EGRESO),0) FROM OPERACIONES
+            WHERE EXTRACT(MONTH FROM FECHA) = EXTRACT(MONTH FROM SYSDATE)
+              AND EXTRACT(YEAR FROM FECHA) = EXTRACT(YEAR FROM SYSDATE)
+        ''')
+        ganancia_mes = cursor.fetchone()[0]
+        # Ganancia mes anterior
+        cursor.execute('''
+            SELECT NVL(SUM(INGRESO),0) - NVL(SUM(EGRESO),0) FROM OPERACIONES
+            WHERE EXTRACT(MONTH FROM FECHA) = EXTRACT(MONTH FROM ADD_MONTHS(SYSDATE, -1))
+              AND EXTRACT(YEAR FROM FECHA) = EXTRACT(YEAR FROM ADD_MONTHS(SYSDATE, -1))
+        ''')
+        ganancia_anterior = cursor.fetchone()[0]
+        cursor.close()
+        # Calcular diferencia porcentual
+        if ganancia_anterior == 0:
+            porcentaje = 100.0 if ganancia_mes > 0 else 0.0
+        else:
+            porcentaje = round(((ganancia_mes - ganancia_anterior) / abs(ganancia_anterior)) * 100, 2)
+        return jsonify({
+            'gananciaMes': ganancia_mes,
+            'gananciaAnterior': ganancia_anterior,
+            'porcentaje': porcentaje
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/mantenimientos/mes', methods=['GET'])
+def mantenimientos_mes():
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT COUNT(*) FROM MANTENIMIENTOS m
+            JOIN OPERACIONES o ON m.ID_OPERACION = o.ID_OPERACION
+            WHERE EXTRACT(MONTH FROM o.FECHA) = EXTRACT(MONTH FROM SYSDATE)
+              AND EXTRACT(YEAR FROM o.FECHA) = EXTRACT(YEAR FROM SYSDATE)
+        ''')
+        total = cursor.fetchone()[0]
+        cursor.close()
+        return jsonify({'mantenimientosMes': total})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     # El debug=True es genial para desarrollo
