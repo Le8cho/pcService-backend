@@ -47,7 +47,7 @@ def serialize_dates(obj):
     return obj
 
 def get_mantenimientos():
-    """Obtener todos los mantenimientos con información de cliente"""
+    """Obtener todos los mantenimientos con información de cliente y equipo asociado"""
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -65,10 +65,13 @@ def get_mantenimientos():
             m.frecuencia,
             m.prox_mantenimiento,
             m.tipo_mantenimiento,
-            o.id_cliente
+            o.id_cliente,
+            d.tipo_dispositivo || ' ' || d.marca || ' ' || d.modelo as equipo_asociado
         FROM operaciones o
         INNER JOIN mantenimientos m ON o.id_operacion = m.id_operacion
         INNER JOIN clientes c ON o.id_cliente = c.id_cliente
+        LEFT JOIN mantenimiento_dispositivo md ON m.id_operacion = md.id_operacion
+        LEFT JOIN dispositivos d ON md.id_dispositivo = d.id_dispositivo
         WHERE o.tipo_operacion = 'MANTENIMIENTO'
         ORDER BY o.fecha DESC
         """
@@ -437,16 +440,13 @@ def cleanup_orphaned_records():
         return None
 
 def search_mantenimientos():
-    """Buscar mantenimientos por término"""
+    """Buscar mantenimientos por término, incluyendo equipo asociado"""
     try:
         search_term = request.args.get('search', '').strip()
-        
         if not search_term:
             return jsonify([])
-        
         conn = get_db_connection()
         cursor = conn.cursor()
-        
         query = """
         SELECT 
             o.id_operacion,
@@ -460,34 +460,37 @@ def search_mantenimientos():
             m.frecuencia,
             m.prox_mantenimiento,
             m.tipo_mantenimiento,
-            o.id_cliente
+            o.id_cliente,
+            d.tipo_dispositivo || ' ' || d.marca || ' ' || d.modelo as equipo_asociado
         FROM operaciones o
         INNER JOIN mantenimientos m ON o.id_operacion = m.id_operacion
         INNER JOIN clientes c ON o.id_cliente = c.id_cliente
+        LEFT JOIN mantenimiento_dispositivo md ON m.id_operacion = md.id_operacion
+        LEFT JOIN dispositivos d ON md.id_dispositivo = d.id_dispositivo
         WHERE o.tipo_operacion = 'MANTENIMIENTO'
         AND (
             UPPER(c.nombre) LIKE UPPER(:search) OR
             UPPER(c.apellido) LIKE UPPER(:search) OR
             UPPER(m.descripcion) LIKE UPPER(:search) OR
             'MP' || LPAD(o.id_operacion, 3, '0') LIKE UPPER(:search) OR
-            'CL' || LPAD(c.id_cliente, 3, '0') LIKE UPPER(:search)
+            'CL' || LPAD(c.id_cliente, 3, '0') LIKE UPPER(:search) OR
+            UPPER(d.tipo_dispositivo) LIKE UPPER(:search) OR
+            UPPER(d.marca) LIKE UPPER(:search) OR
+            UPPER(d.modelo) LIKE UPPER(:search) OR
+            UPPER(d.tipo_dispositivo || ' ' || d.marca || ' ' || d.modelo) LIKE UPPER(:search)
         )
         ORDER BY o.fecha DESC
         """
-        
         search_param = f"%{search_term}%"
         cursor.execute(query, {'search': search_param})
         columns = [col[0].lower() for col in cursor.description]
         rows = cursor.fetchall()
-        
         mantenimientos = []
         for row in rows:
             mantenimiento = {col: serialize_dates(val) for col, val in zip(columns, row)}
             mantenimientos.append(mantenimiento)
-        
         cursor.close()
         return jsonify(mantenimientos)
-        
     except Exception as e:
         current_app.logger.error(f"Error al buscar mantenimientos: {e}")
         return jsonify(error=str(e)), 500
