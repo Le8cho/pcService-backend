@@ -761,6 +761,44 @@ def delete_dispositivo(id):
         return jsonify({'message': 'Dispositivo eliminado correctamente'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/dispositivos/search', methods=['GET'])
+def search_dispositivos():
+    """Buscar dispositivos por un término de búsqueda"""
+    try:
+        search_term = request.args.get('search', '').strip()
+        if not search_term: 
+            return jsonify([])
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        query = """
+        SELECT 
+            d.ID_DISPOSITIVO,
+            d.ID_CLIENTE,
+            d.TIPO_DISPOSITIVO,
+            d.MARCA,
+            d.MODELO,
+            c.NOMBRE || ' ' || c.APELLIDO as NOMBRE_CLIENTE
+        FROM DISPOSITIVOS d
+        INNER JOIN CLIENTES c ON d.ID_CLIENTE = c.ID_CLIENTE
+        WHERE (
+            UPPER(d.TIPO_DISPOSITIVO) LIKE UPPER(:search) OR
+            UPPER(d.MARCA) LIKE UPPER(:search) OR
+            UPPER(d.MODELO) LIKE UPPER(:search) OR
+            UPPER(c.NOMBRE || ' ' || c.APELLIDO) LIKE UPPER(:search) OR
+            CAST(d.ID_DISPOSITIVO AS VARCHAR2(10)) LIKE :search OR
+            CAST(d.ID_CLIENTE AS VARCHAR2(10)) LIKE :search
+        )
+        ORDER BY d.ID_DISPOSITIVO DESC
+        """
+        cursor.execute(query, {'search': f"%{search_term}%"})
+        columns = [desc[0] for desc in cursor.description]
+        dispositivos = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        cursor.close()
+        return jsonify(dispositivos)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
     
     
 

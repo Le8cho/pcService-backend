@@ -37,8 +37,8 @@ def get_db_connection():
     """Obtener conexión de la base de datos usando la función de app.py"""
     if 'db' not in g:
         # Importar la función get_db del módulo principal
-        import app
-        return app.get_db()
+        from db import get_db
+        return get_db()
     return g.db
 
 def serialize_dates(obj):
@@ -337,37 +337,104 @@ def update_mantenimiento(id):
         return jsonify(error=str(e)), 500
 
 def delete_mantenimiento(id):
-    """Eliminar un mantenimiento"""
+    """Eliminar un mantenimiento con eliminación en cascada correcta"""
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Primero eliminar de la tabla MANTENIMIENTOS (por FK constraint)
-        cursor.execute("DELETE FROM mantenimientos WHERE id_operacion = :id", {'id': id})
+        # Verificar si el mantenimiento existe
+        cursor.execute("""
+            SELECT COUNT(*) FROM operaciones 
+            WHERE id_operacion = :id AND tipo_operacion = 'MANTENIMIENTO'
+        """, {'id': id})
         
-        # Eliminar de mantenimiento_dispositivo si existe
-        cursor.execute("DELETE FROM mantenimiento_dispositivo WHERE id_operacion = :id", {'id': id})
-        # MIRROR: Eliminar en mantenimiento_dispositivo
-        delete_record('MANTENIMIENTO_DISPOSITIVO', id, MANTENIMIENTO_DISPOSITIVO_FIELDS)
-        
-        # Luego eliminar de la tabla OPERACIONES
-        cursor.execute("DELETE FROM operaciones WHERE id_operacion = :id AND tipo_operacion = 'MANTENIMIENTO'", {'id': id})
-        
-        if cursor.rowcount == 0:
+        if cursor.fetchone()[0] == 0:
+            cursor.close()
             return jsonify(error="Mantenimiento no encontrado"), 404
+        
+        # Iniciar transacción
+        conn.begin()
+        
+        try:
+            # 1. Eliminar de MANTENIMIENTO_DISPOSITIVO primero (por FK constraint)
+            cursor.execute("DELETE FROM mantenimiento_dispositivo WHERE id_operacion = :id", {'id': id})
+            current_app.logger.info(f"Eliminados {cursor.rowcount} registros de mantenimiento_dispositivo")
             
-        conn.commit()
-        cursor.close()
-        
-        # MIRROR: Eliminar en MANTENIMIENTOS y OPERACIONES
-        delete_record('MANTENIMIENTOS', id, MANTENIMIENTOS_FIELDS)
-        delete_record('OPERACIONES', id, OPERACIONES_FIELDS)
-        
-        return jsonify(message="Mantenimiento eliminado exitosamente")
+            # 2. Eliminar de MANTENIMIENTOS
+            cursor.execute("DELETE FROM mantenimientos WHERE id_operacion = :id", {'id': id})
+            if cursor.rowcount == 0:
+                raise Exception("No se pudo eliminar el mantenimiento")
+            current_app.logger.info(f"Eliminado mantenimiento con id_operacion: {id}")
+            
+            # 3. Eliminar de OPERACIONES
+            cursor.execute("DELETE FROM operaciones WHERE id_operacion = :id AND tipo_operacion = 'MANTENIMIENTO'", {'id': id})
+            if cursor.rowcount == 0:
+                raise Exception("No se pudo eliminar la operación")
+            current_app.logger.info(f"Eliminada operación con id_operacion: {id}")
+            
+            # Confirmar transacción
+            conn.commit()
+            cursor.close()
+            
+            # MIRROR: Eliminar en archivos de texto (después de confirmar la transacción)
+            try:
+                delete_record('MANTENIMIENTO_DISPOSITIVO', id, MANTENIMIENTO_DISPOSITIVO_FIELDS)
+                delete_record('MANTENIMIENTOS', id, MANTENIMIENTOS_FIELDS)
+                delete_record('OPERACIONES', id, OPERACIONES_FIELDS)
+            except Exception as mirror_error:
+                current_app.logger.warning(f"Error en mirror al eliminar mantenimiento {id}: {mirror_error}")
+            
+            return jsonify(message="Mantenimiento eliminado exitosamente")
+            
+        except Exception as inner_e:
+            # Rollback en caso de error
+            conn.rollback()
+            cursor.close()
+            current_app.logger.error(f"Error durante eliminación de mantenimiento {id}: {inner_e}")
+            return jsonify(error=f"Error al eliminar mantenimiento: {str(inner_e)}"), 500
         
     except Exception as e:
         current_app.logger.error(f"Error al eliminar mantenimiento {id}: {e}")
         return jsonify(error=str(e)), 500
+
+def cleanup_orphaned_records():
+    """Función auxiliar para limpiar registros huérfanos en caso de inconsistencias"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Eliminar registros de mantenimiento_dispositivo sin mantenimiento correspondiente
+        cursor.execute("""
+            DELETE FROM mantenimiento_dispositivo md
+            WHERE NOT EXISTS (
+                SELECT 1 FROM mantenimientos m 
+                WHERE m.id_operacion = md.id_operacion
+            )
+        """)
+        orphaned_md_count = cursor.rowcount
+        
+        # Eliminar registros de mantenimientos sin operación correspondiente
+        cursor.execute("""
+            DELETE FROM mantenimientos m
+            WHERE NOT EXISTS (
+                SELECT 1 FROM operaciones o 
+                WHERE o.id_operacion = m.id_operacion 
+                AND o.tipo_operacion = 'MANTENIMIENTO'
+            )
+        """)
+        orphaned_m_count = cursor.rowcount
+        
+        conn.commit()
+        cursor.close()
+        
+        return {
+            'orphaned_mantenimiento_dispositivo': orphaned_md_count,
+            'orphaned_mantenimientos': orphaned_m_count
+        }
+        
+    except Exception as e:
+        current_app.logger.error(f"Error en cleanup_orphaned_records: {e}")
+        return None
 
 def search_mantenimientos():
     """Buscar mantenimientos por término"""
@@ -536,6 +603,28 @@ def register_mantenimientos_routes(app):
     app.route('/api/mantenimientos', methods=['POST'])(create_mantenimiento)
     app.route('/api/mantenimientos/<int:id>', methods=['PUT'])(update_mantenimiento)
     app.route('/api/mantenimientos/<int:id>', methods=['DELETE'])(delete_mantenimiento)
+    
+    # Rutas adicionales
+    app.route('/api/mantenimientos/search', methods=['GET'])(search_mantenimientos)
+    app.route('/api/mantenimientos/proximos-vencer', methods=['GET'])(get_mantenimientos_proximos_vencer)
+    app.route('/api/clientesMantenimiento', methods=['GET'])(get_clientesMantenimiento)
+    app.route('/api/dispositivo/cliente/<int:cliente_id>', methods=['GET'])(get_dispositivos_by_cliente)
+    
+    # Endpoint para limpieza de registros huérfanos (solo para administradores)
+    def cleanup_endpoint():
+        try:
+            result = cleanup_orphaned_records()
+            if result:
+                return jsonify({
+                    'message': 'Limpieza completada',
+                    'registros_eliminados': result
+                })
+            else:
+                return jsonify({'error': 'Error durante la limpieza'}), 500
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    
+    app.route('/api/mantenimientos/cleanup', methods=['POST'])(cleanup_endpoint)
     
     # Rutas de búsqueda y filtros
     app.route('/api/mantenimientos/search', methods=['GET'])(search_mantenimientos)
