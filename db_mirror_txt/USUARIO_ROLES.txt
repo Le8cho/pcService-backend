@@ -1,1 +1,4 @@
 ID_USUARIO,ID_ROL
+1,1
+2,2
+3,3

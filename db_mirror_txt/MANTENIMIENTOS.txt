@@ -1,13 +1,36 @@
 ID_OPERACION,DESCRIPCION,FRECUENCIA,PROX_MANTENIMIENTO,TIPO_MANTENIMIENTO
-
-187,Dell OptiPlex 7090 (PC Escritorio),Trimestral,2025-07-10,PREVENTIVO
-188,Se realizo una bella mantenimiento a este bello equipo muy querido por el bello cliente,Trimestral,,PREVENTIVO
+8,Dell 5,Semestral,2025-11-17 00:00:00,PREVENTIVO
+147,Acer Aspire 5 (Laptop),Anual,2025-07-09 00:00:00,PREVENTIVO
+163,Lenovo ThinkPad X1 (Laptop),Trimestral,2025-07-10 00:00:00,PREVENTIVO
+170,HP Pavilion69 (Laptop),Bimestral,2025-07-30 00:00:00,PREVENTIVO
+176,Mantenimiento preventivo de notebook,Anual,2026-07-10 00:00:00,PREVENTIVO
+177,Motorola Moto G30 (Smartphone),Trimestral,,PREVENTIVO
+178,HP Pavilon69 (Laptop),Bimestral,,PREVENTIVO
+183,HP EliteDesk 800 (PC Escritorio),Bimestral,2025-07-31 00:00:00,PREVENTIVO
+184,Modificado 1,Trimestral,2025-10-14 00:00:00,PREVENTIVO
 191,Hola,Bimestral,,PREVENTIVO
-193,Mantenimiento preventivo anual de impresora,Anual,2025-12-01,PREVENTIVO
-200,Hola,Semestral,2025-07-10,PREVENTIVO
-204,Mantenimiento preventivo anual de impresora,Anual,2025-12-01,PREVENTIVO
-205,Mantenimiento preventivo anual de impresora,Anual,2025-12-01,PREVENTIVO
-214,Hola,Bimestral,2025-07-10,PREVENTIVO
-215,Hola,Trimestral,2025-07-10,PREVENTIVO
-216,Prueba10,Bimestral,2025-09-10,PREVENTIVO
-218,Mantenimiento mirrror,Trimestral,2025-10-10,PREVENTIVO
+200,Hola,Semestral,2025-07-10 00:00:00,PREVENTIVO
+226,Mantenimiento preventivo,Trimestral,2025-10-10 00:00:00,PREVENTIVO
+227,asfdasdas,Semestral,2026-01-10 00:00:00,PREVENTIVO
+272,dsad,Semestral,2026-01-11 00:00:00,PREVENTIVO
+149,Acer Aspire 5 (Laptop),Anual,2025-07-10 00:00:00,PREVENTIVO
+216,Prueba10,Bimestral,2025-09-10 00:00:00,PREVENTIVO
+218,Mantenimiento mirrror,Trimestral,2025-10-10 00:00:00,PREVENTIVO
+244,blablabaalblabla tintes si,Anual,2026-07-10 00:00:00,PREVENTIVO
+239,Hola,Bimestral,2025-09-10 00:00:00,PREVENTIVO
+260,Hola,Semestral,2026-01-10 00:00:00,PREVENTIVO
+271,dsadsa,Trimestral,2025-10-11 00:00:00,PREVENTIVO
+162,Acer Aspire 5 (Laptop),Semestral,2025-07-31 00:00:00,PREVENTIVO
+169,Lenovo ThinkPad X1 (Laptop),Bimestral,2026-01-06 00:00:00,PREVENTIVO
+182,TP-Link Archer C6 (Router),Bimestral,2025-07-12 00:00:00,PREVENTIVO
+188,Hols,Trimestral,2025-10-10 00:00:00,PREVENTIVO
+174,Epson L3150 (Impresora),Mensual,,PREVENTIVO
+193,Mantenimiento preventivo anual de impresora,Anual,2025-12-01 00:00:00,PREVENTIVO
+214,Hola,Bimestral,2025-07-10 00:00:00,PREVENTIVO
+215,Hola,Trimestral,2025-07-10 00:00:00,PREVENTIVO
+287,esd,Bimestral,2025-09-11 00:00:00,PREVENTIVO
+164,Dell OptiPlex 7090 (PC Escritorio),Bimestral,2025-07-10 00:00:00,PREVENTIVO
+175,HP Pavilon69 (Laptop),Trimestral,,PREVENTIVO
+187,Dell OptiPlex 7090 (PC Escritorio),Trimestral,2025-07-10 00:00:00,PREVENTIVO
+204,Mantenimiento preventivo anual de impresora,Anual,2025-12-01 00:00:00,PREVENTIVO
+205,Mantenimiento preventivo anual de impresora,Anual,2025-12-01 00:00:00,PREVENTIVO

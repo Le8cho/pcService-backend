@@ -25,7 +25,9 @@ import smtplib
 from servicios_routes import register_servicios_routes  # Agregar esta línea
 
 from mantenimientos_routes import register_mantenimientos_routes  # Agregar esta línea
-from db_mirror import create_record, update_record, delete_record
+from db_mirror import create_record, update_record, delete_record, get_mirror_path
+import csv
+import os
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -1299,6 +1301,40 @@ def mantenimientos_mes():
         return jsonify({'mantenimientosMes': total})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/mirror/refresh_all', methods=['POST'])
+def refresh_all_mirrors():
+    """
+    Copia todas las tablas de la base de datos y sobreescribe sus archivos mirror.
+    """
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        # Obtener todas las tablas del usuario
+        cursor.execute("SELECT table_name FROM user_tables ORDER BY table_name")
+        tables = [row[0] for row in cursor.fetchall()]
+        resumen = {}
+        for table in tables:
+            # Obtener columnas de la tabla
+            cursor.execute(f"SELECT * FROM {table} WHERE 1=0")
+            fields = [desc[0] for desc in cursor.description]
+            # Obtener todos los datos
+            cursor.execute(f"SELECT * FROM {table}")
+            rows = cursor.fetchall()
+            # Limpiar archivo mirror
+            mirror_path = get_mirror_path(table)
+            if os.path.exists(mirror_path):
+                os.remove(mirror_path)
+            # Escribir todos los registros en el mirror
+            for row in rows:
+                record = {k: str(v) if v is not None else '' for k, v in zip(fields, row)}
+                create_record(table, record, fields)
+            resumen[table] = len(rows)
+        cursor.close()
+        return jsonify({"message": "Mirror actualizado para todas las tablas", "resumen": resumen})
+    except Exception as e:
+        app.logger.error(f"Error al refrescar mirrors: {e}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     # El debug=True es genial para desarrollo

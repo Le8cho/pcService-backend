@@ -1,3 +1,35 @@
 ID_DISPOSITIVO,ID_CLIENTE,TIPO_DISPOSITIVO,MARCA,MODELO
-65,156,Laptop,HP,Mirror
+1,1,Laptopds,HPE,Pavilion 13
+2,1,Impresora,Epson,L3150
+3,2,Tablet,Samsung,Galaxy Tab A
+4,3,Laptop,Lenovo,ThinkPad X1
+5,3,Smartphone,Xiaomi,Redmi Note 11
+6,4,PC Escritorio,Dell,OptiPlex 7090
+7,5,Laptop,Asus,VivoBook 15
+8,5,Impresora,HP,DeskJet 2700
+9,6,Tablet,Lenovo,Tab M10
+10,7,Tablet,Acer,Aspire 5
+11,8,Smartphone,Motorola,Moto G30
+12,9,Laptop,Dell,Inspiron 15
+13,9,Router,TP-Link,Archer C6
+14,10,PC Escritorio,HP,EliteDesk 800
+41,121,Laptop,HP,L3354
+69,161,Laptop,HP,NOSE
 66,148,Laptop,HP,NOSE
+65,156,Laptop,HP,Mirror
+68,159,Laptop,Lenovo,Tab M33
+70,161,Laptop,HP,L3354
+75,166,Impresora,HP,Negra HP
+76,167,Laptop,HP,NOSE Geimer
+77,167,Laptop,HP,Geimer Editado
+74,165,Laptop,HP,NOSE
+78,170,Laptop,Borrar,NOSE
+79,163,Laptop,Borrar,NOSE
+67,157,Laptop,HP,NOSE
+73,164,Tablet,Borrar,Mirror
+81,81,Laptop,Goico,NOSE
+62,1,Laptop,HP,L3354
+63,3,Laptop,HP,L3354
+64,151,Laptop,HPEA,Pavilon69
+71,163,Borrar,Borrar,Borrar
+72,163,Tablet,Borrar,Mirror

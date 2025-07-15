@@ -1,2 +1,14 @@
-ID_LICENCIA,DETALLES,FEC_INICIO,FECHA_FIN,FECHA_AVISO,EMAIL_CTACLIE,PASSW_CTACLIE,NORM_M365,USER_M365,PASS_M365M-006,,2025-07-10,2026-07-09,2026-07-09,mirror@gmail.com,mirrorpassword,mirror,mirror,mirror
-M-007,Mirror,2025-07-10,2026-07-09,2025-07-17,mirror@gmail.com,mirrorpassword,mirror,mirror,mirror
+ID_LICENCIA,DETALLES,FEC_INICIO,FECHA_FIN,FECHA_AVISO,EMAIL_CTACLIE,PASSW_CTACLIE,NORM_M365,USER_M365,PASS_M365
+M-001,Licencia Microsoft 365 Personal (1 año),2025-05-17 00:00:00,2025-06-17 00:00:00,2025-06-11 00:00:00,juan.perez@email.com,clave123,Juan Pérez,juanp365,micropass1
+M-002,Licencia Microsoft 365 Familiar (hasta 6 usuarios),2025-05-17 00:00:00,2025-06-17 00:00:00,2025-06-11 00:00:00,pedro.lopez@email.com,clave456,Pedro López,pedrol365,micropass2
+M-004,,2025-07-09 00:00:00,2026-07-08 00:00:00,,josue.pizango.ch@gmail.com,"HOLAS""!#",NIUNA,Hola123,Hola123
+M-008,Mirror,2025-07-10 00:00:00,2026-07-09 00:00:00,2025-07-10 00:00:00,mirror@gmail.com,mirrorpassword,mirror,mirror,mirror
+M-006,,2025-07-10 00:00:00,2026-07-09 00:00:00,2026-07-09 00:00:00,mirror@gmail.com,mirrorpassword,mirror,mirror,mirror
+M-007,Mirror,2025-07-10 00:00:00,2026-07-09 00:00:00,2025-07-17 00:00:00,mirror@gmail.com,mirrorpassword,mirror,mirror,mirror
+M-011,Mirror,2025-07-10 00:00:00,2026-07-10 00:00:00,2025-07-10 00:00:00,mirror@gmail.com,mirrorpassword,mirror,mirror,mirror
+M-005,,2025-07-09 00:00:00,2026-07-08 00:00:00,,,,,,
+M-012,Mirror,2025-07-10 00:00:00,2026-07-10 00:00:00,2025-07-11 00:00:00,josue.pizango.ch@gmail.com,mirrorpassword,mirror,mirror,mirror
+M-003,WERWE,2025-06-25 00:00:00,2026-06-24 00:00:00,2025-06-28 00:00:00,SADFSDF,FDSF,SDFSD,DSFS,DSFF
+M-010,Mirror,2025-07-09 00:00:00,2026-07-09 00:00:00,2025-07-10 00:00:00,mirror@gmail.com,mirrorpassword,mirror,mirror,mirror
+M-013,Mirror,2025-07-11 00:00:00,2026-07-11 00:00:00,2025-07-11 00:00:00,josue.pizango.ch@gmail.com,mirrorpassword,mirror,mirror,mirror
+M-009,,2025-07-10 00:00:00,2026-07-09 00:00:00,,mirror@gmail.com,mirrorpassword,mirror,mirror,mirror

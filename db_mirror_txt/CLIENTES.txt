@@ -1,3 +1,43 @@
 ID_CLIENTE,NOMBRE,APELLIDO,CELULAR,DIRECCION,CORREO
-[155],Prueba4,Prueba4,944046722,Prueba4,hola.123@gmail.com
-[156],PruebaMIrror,PruebaMIrror,944046722,PruebaMIrror,hola.123@gmail.com
+1,Juan Pepito Top,Pérez,99999999 ,Av. Los Álamos 101,juan.perez@email.com
+2,María ,De Las Mercedez Gómez,912345678,Calle Los Jardines 234,maria.gomez@email.com
+3,Carlos,Ramírez,999888777,Jr. Primavera 321,carlos.ramirez@email.com
+4,Ana,Torres,956123456,Av. La Marina 1001,ana.torres@email.com
+5,Luis,Fernández,998877665,Calle San Martín 44,luis.fernandez@email.com
+6,Laura,Mendoza,983456789,Jr. Amazonas 55,laura.mendoza@email.com
+7,Diego,Vargas,987123654,Av. Grau 102,diego.vargas@email.com
+8,Lucía,Castillo,991112233,Calle Piura 78,lucia.castillo@email.com
+9,Pedro,López,975555444,Jr. Cusco 199,pedro.lopez@email.com
+10,Valeria,Reyes,980000111,Av. Arequipa 450,valeria.reyes@email.com
+47,PRUEBALICENCIA,PRUEBA,999999999,PRUEBA,prueba@correo.com
+101,Leo,Campos,944046772,123dsa,hola.123@gmail.com
+121,Josue Alejandro,Pizango Chang,944046722,SDASdsad,josue.pizango.ch@gmail.com
+143,Josue Alejandro,Pizango Chang,944046722,123dsa,hola.123@gmail.com
+144,Josue Alejandro,Pizango Chang,944046722,123dsa,hola.123@gmail.com
+149,Leo,Prueba3,944046722,Prueba3,josue.pizango.ch@gmail.com
+150,Luis Andres,Del Carpio Villacrez,956370376,VMT,nose@unmsm.edu.oe
+154,Josue Alejandro,Pizango Chang,944046722,123dsa,josue.pizango.ch@gmail.com
+155,Prueba4,Prueba4,944046722,Prueba4,hola.123@gmail.com
+169,NuevoCliente,NuevoCliente,987654321,NuevoCliente,hola.123@gmail.com
+21,Gianmarco,Lavado,123456789,hola123,naze.lavado@email.com
+161,PruebaPIZA,PruebaPIZA,944046722,PruebaPIZA,hola.123@gmail.com
+67,bla,bla,123444232,123rrr,gato@gmai.com
+156,PruebaMIrror,PruebaMIrror,944046722,PruebaMIrror,hola.123@gmail.com
+158,Jared,Ortiz,123456789,Jr. Diego Ferré,oh.jaredf@gmail.com
+159,Fabrizioo,Ortiz,987032798,Jr. Diego Ferré,oh.fabriziop@gmail.com
+160,Mirror3,MModificar,944046722,Mirror3,hola.123@gmail.com
+166,Fabri,Ortiz,987032798,Diego Ferre 135,maxitope2022@gmail.com
+167,Leonardo Campos,Leonardo Campos,944046722,Leonardo Campos,josue.pizango.ch@gmail.com
+168,Top1,Top1,944046722,Top1,hola.123@gmail.com
+163,B3,Borrar1,944046722,Borrar1,hola.123@gmail.com
+171,Mirror2,Prueba3,944046722,Av. Los Álamos 101,hola.123@gmail.com
+81,Brayan,Goicochea,94926620 ,No. Se 69,brayangoicocheac@gmail.com
+164,Borrar,Borra,944046722,BorrarEditar,hola.123@gmail.com
+28,Pizango,Torres,123456789,Tineo,naze.lavado@email.com
+152,Prueba3,Prueba3,944046722,Prueba3,hola.123@gmail.com
+165,Mirror3a,Mirror3,944046722,Mirror3,hola.123@gmail.com
+170,PizangoCorreo,PizangoCorreo,987654321,PizangoCorreo,josue.pizango.ch@gmail.com
+181,Juan Pepito Top,Pérez,944046722,Mirror2,hola.123@gmail.com
+157,Mirror2,Modificado5,944046722,Mirror2,hola.123@gmail.com
+151,Fabrizioooo Peter,Ortiz Herrera,987032798,"Diego Ferre 135, Cercado de Lima 15812",fabrizio.ortiz@unmsm.edu.pe
+148,Hola,Prueba3,944046722,Prueba3,hola.123@gmail.com

@@ -1,0 +1,502 @@
+ID,HASH,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON,STATEMENT,TIMES
+123,"select extract(year from o.fecha) as año, extract(month from o.fecha) as mes, 'microsoft365' as tipo_licencia, count(*) as licencias_vendidas, sum(o.ingreso) as ingresos from ventas v join operaciones o on v.id_operacion = o.id_operacion join microsoft365 m on v.id_licencia = m.id_licencia group by extract(year from o.fecha), extract(month from o.fecha)",PCSERVICEUSER,2025-07-05 01:59:01.564784,PCSERVICEUSER,2025-07-05 01:59:01.564784,"SELECT 
+    EXTRACT(YEAR FROM O.FECHA) as Año,
+    EXTRACT(MONTH FROM O.FECHA) as Mes,
+    'Microsoft365' as Tipo_Licencia,
+    COUNT(*) as Licencias_Vendidas,
+    SUM(O.INGRESO) as Ingresos
+FROM VENTAS V
+JOIN OPERACIONES O ON V.ID_OPERACION = O.ID_OPERACION
+JOIN MICROSOFT365 M ON V.ID_LICENCIA = M.ID_LICENCIA
+GROUP BY EXTRACT(YEAR FROM O.FECHA), EXTRACT(MONTH FROM O.FECHA)",1
+87,select * from mantenimientos,PCSERVICEUSER,2025-06-11 18:37:34.082334,PCSERVICEUSER,2025-07-10 16:01:41.906910,select * FROM MANTENIMIENTOS,5
+124,"select extract(year from o.fecha) as año, extract(month from o.fecha) as mes, sum(o.ingreso) as ingresos, count(*) as licencias from ventas v join operaciones o on v.id_operacion = o.id_operacion join microsoft365 m on v.id_licencia = m.id_licencia group by cube(extract(year from o.fecha), extract(month from o.fecha)) order by año nulls last, mes nulls last",PCSERVICEUSER,2025-07-05 02:02:40.113528,PCSERVICEUSER,2025-07-05 02:02:40.113528,"SELECT 
+    EXTRACT(YEAR FROM O.FECHA) as Año,
+    EXTRACT(MONTH FROM O.FECHA) as Mes,
+    SUM(O.INGRESO) as Ingresos,
+    COUNT(*) as Licencias
+FROM VENTAS V
+JOIN OPERACIONES O ON V.ID_OPERACION = O.ID_OPERACION
+JOIN MICROSOFT365 M ON V.ID_LICENCIA = M.ID_LICENCIA
+GROUP BY CUBE(EXTRACT(YEAR FROM O.FECHA), EXTRACT(MONTH FROM O.FECHA))
+ORDER BY Año NULLS LAST, Mes NULLS LAST",1
+125,"select extract(year from o.fecha) as año, sum(case when extract(month from o.fecha) = 1 then o.ingreso else 0 end) as enero, sum(case when extract(month from o.fecha) = 2 then o.ingreso else 0 end) as febrero, sum(case when extract(month from o.fecha) = 3 then o.ingreso else 0 end) as marzo, sum(case when extract(month from o.fecha) = 4 then o.ingreso else 0 end) as abril, sum(case when extract(month from o.fecha) = 5 then o.ingreso else 0 end) as mayo, sum(case when extract(month from o.fecha) = 6 then o.ingreso else 0 end) as junio, sum(o.ingreso) as total_anual from ventas v join operaciones o on v.id_operacion = o.id_operacion join microsoft365 m on v.id_licencia = m.id_licencia group by extract(year from o.fecha) order by año",PCSERVICEUSER,2025-07-05 02:03:41.071948,PCSERVICEUSER,2025-07-05 02:03:41.071948,"SELECT 
+    EXTRACT(YEAR FROM O.FECHA) as Año,
+    SUM(CASE WHEN EXTRACT(MONTH FROM O.FECHA) = 1 THEN O.INGRESO ELSE 0 END) as Enero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM O.FECHA) = 2 THEN O.INGRESO ELSE 0 END) as Febrero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM O.FECHA) = 3 THEN O.INGRESO ELSE 0 END) as Marzo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM O.FECHA) = 4 THEN O.INGRESO ELSE 0 END) as Abril,
+    SUM(CASE WHEN EXTRACT(MONTH FROM O.FECHA) = 5 THEN O.INGRESO ELSE 0 END) as Mayo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM O.FECHA) = 6 THEN O.INGRESO ELSE 0 END) as Junio,
+    SUM(O.INGRESO) as Total_Anual
+FROM VENTAS V
+JOIN OPERACIONES O ON V.ID_OPERACION = O.ID_OPERACION
+JOIN MICROSOFT365 M ON V.ID_LICENCIA = M.ID_LICENCIA
+GROUP BY EXTRACT(YEAR FROM O.FECHA)
+ORDER BY Año",1
+4,select * from usuario_roles,PCSERVICEUSER,2025-05-17 05:35:40.571574,PCSERVICEUSER,2025-05-17 05:35:40.571574,SELECT * FROM USUARIO_ROLES,1
+83,"select 'clientes' as tabla, count(*) as total from clientes union all select 'dispositivos', count(*) from dispositivos union all select 'operaciones', count(*) from operaciones union all select 'mantenimientos', count(*) from mantenimientos union all select 'mantenimiento_dispositivo', count(*) from mantenimiento_dispositivo",PCSERVICEUSER,2025-06-11 18:24:24.836778,PCSERVICEUSER,2025-06-11 18:24:24.836778,"SELECT 'CLIENTES' as TABLA, COUNT(*) as TOTAL FROM CLIENTES
+UNION ALL
+SELECT 'DISPOSITIVOS', COUNT(*) FROM DISPOSITIVOS
+UNION ALL
+SELECT 'OPERACIONES', COUNT(*) FROM OPERACIONES
+UNION ALL
+SELECT 'MANTENIMIENTOS', COUNT(*) FROM MANTENIMIENTOS
+UNION ALL
+SELECT 'MANTENIMIENTO_DISPOSITIVO', COUNT(*) FROM MANTENIMIENTO_DISPOSITIVO",1
+126,"select * from ( select extract(year from o.fecha) as año, extract(month from o.fecha) as mes, o.ingreso from ventas v join operaciones o on v.id_operacion = o.id_operacion join microsoft365 m on v.id_licencia = m.id_licencia ) pivot ( sum(ingreso) for mes in (1 as ene, 2 as feb, 3 as mar, 4 as abr, 5 as may, 6 as jun, 7 as jul, 8 as ago, 9 as sep, 10 as oct, 11 as nov, 12 as dic) ) order by año",PCSERVICEUSER,2025-07-05 02:04:12.135734,PCSERVICEUSER,2025-07-05 02:04:12.135734,"SELECT * FROM (
+    SELECT 
+        EXTRACT(YEAR FROM O.FECHA) as Año,
+        EXTRACT(MONTH FROM O.FECHA) as Mes,
+        O.INGRESO
+    FROM VENTAS V
+    JOIN OPERACIONES O ON V.ID_OPERACION = O.ID_OPERACION
+    JOIN MICROSOFT365 M ON V.ID_LICENCIA = M.ID_LICENCIA
+)
+PIVOT (
+    SUM(INGRESO) 
+    FOR Mes IN (1 as Ene, 2 as Feb, 3 as Mar, 4 as Abr, 
+                5 as May, 6 as Jun, 7 as Jul, 8 as Ago,
+                9 as Sep, 10 as Oct, 11 as Nov, 12 as Dic)
+)
+ORDER BY Año",1
+93,"insert into clientes (nombre, apellido, celular, direccion, correo) values ('ana', 'lópez', '934567890', 'camino del sol 321', 'ana.lopez@email.com')",PCSERVICEUSER,2025-06-11 18:59:41.892938,PCSERVICEUSER,2025-06-11 18:59:41.892938,"INSERT INTO CLIENTES (NOMBRE, APELLIDO, CELULAR, DIRECCION, CORREO) VALUES
+('Ana', 'López', '934567890', 'Camino del Sol 321', 'ana.lopez@email.com')",1
+138,"with datos_mensuales as ( select extract(year from fecha) as año, extract(month from fecha) as mes, sum(ingreso) as ingresos_mes from operaciones where ingreso is not null group by extract(year from fecha), extract(month from fecha) ) select * from ( select año, mes, ingresos_mes from datos_mensuales ) pivot ( sum(ingresos_mes) for mes in (1 as enero, 2 as febrero, 3 as marzo, 4 as abril, 5 as mayo, 6 as junio, 7 as julio, 8 as agosto, 9 as septiembre, 10 as octubre, 11 as noviembre, 12 as diciembre) ) order by año",PCSERVICEUSER,2025-07-05 03:00:54.322640,PCSERVICEUSER,2025-07-05 03:04:13.242585,"WITH datos_mensuales AS (
+    SELECT 
+        EXTRACT(YEAR FROM FECHA) as Año,
+        EXTRACT(MONTH FROM FECHA) as Mes,
+        SUM(INGRESO) as Ingresos_Mes
+    FROM OPERACIONES
+    WHERE INGRESO IS NOT NULL
+    GROUP BY EXTRACT(YEAR FROM FECHA), EXTRACT(MONTH FROM FECHA)
+)
+SELECT * FROM (
+    SELECT Año, Mes, Ingresos_Mes
+    FROM datos_mensuales
+)
+PIVOT (
+    SUM(Ingresos_Mes)
+    FOR Mes IN (1 as Enero, 2 as Febrero, 3 as Marzo, 4 as Abril, 
+                5 as Mayo, 6 as Junio, 7 as Julio, 8 as Agosto,
+                9 as Septiembre, 10 as Octubre, 11 as Noviembre, 12 as Diciembre)
+)
+ORDER BY Año",3
+103,select * from clientes,PCSERVICEUSER,2025-06-21 14:05:01.537359,PCSERVICEUSER,2025-07-11 02:45:22.545479,SELECT * FROM CLIENTES,6
+85,"select o.id_operacion, 'mp' || lpad(o.id_operacion, 3, '0') as mant_prev, 'cl' || lpad(c.id_cliente, 3, '0') as cod_cliente, c.nombre || ' ' || c.apellido as nombre_cliente, o.fecha, o.ingreso, o.egreso, m.descripcion as equipos, m.frecuencia, m.prox_mantenimiento, m.tipo_mantenimiento, o.id_cliente from operaciones o inner join mantenimientos m on o.id_operacion = m.id_operacion inner join clientes c on o.id_cliente = c.id_cliente where o.tipo_operacion = 'mantenimiento' order by o.fecha desc",PCSERVICEUSER,2025-06-11 18:32:30.879195,PCSERVICEUSER,2025-06-21 14:50:04.028562,"SELECT 
+            o.id_operacion,
+            'MP' || LPAD(o.id_operacion, 3, '0') as mant_prev,
+            'CL' || LPAD(c.id_cliente, 3, '0') as cod_cliente,
+            c.nombre || ' ' || c.apellido as nombre_cliente,
+            o.fecha,
+            o.ingreso,
+            o.egreso,
+            m.descripcion as equipos,
+            m.frecuencia,
+            m.prox_mantenimiento,
+            m.tipo_mantenimiento,
+            o.id_cliente
+        FROM operaciones o
+        INNER JOIN mantenimientos m ON o.id_operacion = m.id_operacion
+        INNER JOIN clientes c ON o.id_cliente = c.id_cliente
+        WHERE o.tipo_operacion = 'MANTENIMIENTO'
+        ORDER BY o.fecha DESC",3
+92,"insert into clientes (nombre, apellido, celular, direccion, correo) values ('carlos', 'sánchez', '923456789', 'pasaje real 789', 'carlos.sanchez@email.com')",PCSERVICEUSER,2025-06-11 18:59:41.889473,PCSERVICEUSER,2025-06-11 18:59:41.889473,"INSERT INTO CLIENTES (NOMBRE, APELLIDO, CELULAR, DIRECCION, CORREO) VALUES
+('Carlos', 'Sánchez', '923456789', 'Pasaje Real 789', 'carlos.sanchez@email.com')",1
+106,select*from mantenimientos,PCSERVICEUSER,2025-06-21 14:48:41.355490,PCSERVICEUSER,2025-07-10 19:35:46.701041,select*from mantenimientos,12
+3,select * from usuarios,PCSERVICEUSER,2025-05-17 05:35:11.212649,PCSERVICEUSER,2025-06-21 14:48:40.143026,"SELECT *
+FROM usuarios",6
+62,-- reemplaza 'hash_real_de_leo' con el hash que generaste para la contraseña de leo,PCSERVICEUSER,2025-06-10 22:50:04.733915,PCSERVICEUSER,2025-06-10 22:54:03.351738,-- Reemplaza 'HASH_REAL_DE_LEO' con el hash que generaste para la contraseña de Leo,2
+64,update usuarios set contrasena_hash = 'npglraltdedwcb8i$6c46ddd7ff0731fa1993a7679edd58b9177a2d72878b7764815b3e89843b93f84a4b4e61b76452944b0b443db8480d9d2669d6d29ab4cd9db9b96f2368a627d0' where nombre_usuario = 'jose_editor',PCSERVICEUSER,2025-06-10 22:50:04.812415,PCSERVICEUSER,2025-06-10 22:50:04.812415,"UPDATE USUARIOS
+SET CONTRASENA_HASH = 'npgLRAltdedWCb8i$6c46ddd7ff0731fa1993a7679edd58b9177a2d72878b7764815b3e89843b93f84a4b4e61b76452944b0b443db8480d9d2669d6d29ab4cd9db9b96f2368a627d0'
+WHERE NOMBRE_USUARIO = 'jose_editor'",1
+70,update usuarios set contrasena_hash = 'scrypt:32768:8:1$y06elebvv52bt3np$ee360142c3ed533965e19c3c93fd51381f2ec31eaad4f6f06b985a3812de0c9e5ed7eeeee17ec7a226594db0631dd0bf2f1e503d7fbe8648630f9e28f98d55df' where nombre_usuario = 'leo_admin',PCSERVICEUSER,2025-06-10 22:54:03.405031,PCSERVICEUSER,2025-06-10 22:54:03.405031,"UPDATE USUARIOS
+SET CONTRASENA_HASH = 'scrypt:32768:8:1$Y06EleBVV52Bt3Np$ee360142c3ed533965e19c3c93fd51381f2ec31eaad4f6f06b985a3812de0c9e5ed7eeeee17ec7a226594db0631dd0bf2f1e503d7fbe8648630f9e28f98d55df'
+WHERE NOMBRE_USUARIO = 'leo_admin'",1
+89,"insert into clientes (nombre, apellido, celular, direccion, correo) values ('pedro', 'ramírez', '945678901', 'ruta 5 sur 654', 'pedro.ramirez@email.com')",PCSERVICEUSER,2025-06-11 18:59:34.673541,PCSERVICEUSER,2025-06-11 18:59:34.673541,"INSERT INTO CLIENTES (NOMBRE, APELLIDO, CELULAR, DIRECCION, CORREO) VALUES
+('Pedro', 'Ramírez', '945678901', 'Ruta 5 Sur 654', 'pedro.ramirez@email.com')",1
+90,"insert into clientes (nombre, apellido, celular, direccion, correo) values ('juan', 'pérez', '987654321', 'av. siempre viva 123', 'juan.perez@email.com')",PCSERVICEUSER,2025-06-11 18:59:41.793185,PCSERVICEUSER,2025-06-11 18:59:41.793185,"INSERT INTO CLIENTES (NOMBRE, APELLIDO, CELULAR, DIRECCION, CORREO) VALUES
+('Juan', 'Pérez', '987654321', 'Av. Siempre Viva 123', 'juan.perez@email.com')",1
+94,"select id_cliente, nombre, apellido, celular, direccion, correo from clientes",PCSERVICEUSER,2025-06-11 19:00:00.999202,PCSERVICEUSER,2025-06-11 20:30:14.316355,"SELECT ID_CLIENTE, NOMBRE, APELLIDO, CELULAR, DIRECCION, CORREO
+FROM CLIENTES",9
+172,delete from mantenimiento_dispositivo,PCSERVICEUSER,2025-07-10 15:25:52.446160,PCSERVICEUSER,2025-07-10 16:02:31.274491,delete FROM MANTENIMIENTO_DISPOSITIVO,2
+164,select*from dispositivos,PCSERVICEUSER,2025-07-10 14:31:00.949622,PCSERVICEUSER,2025-07-10 14:31:00.949622,select*from DISPOSITIVOS,1
+165,select*from operaciones,PCSERVICEUSER,2025-07-10 14:44:34.089848,PCSERVICEUSER,2025-07-10 18:36:12.871251,select*from OPERACIONES,3
+167,select * from mantenimiento_dispositivo,PCSERVICEUSER,2025-07-10 15:02:42.986683,PCSERVICEUSER,2025-07-10 20:34:30.574521,select * from MANTENIMIENTO_DISPOSITIVO,19
+168,select d.id_dispositivo from dispositivos d,PCSERVICEUSER,2025-07-10 15:05:19.765331,PCSERVICEUSER,2025-07-10 15:05:19.765331,"SELECT d.ID_DISPOSITIVO
+FROM DISPOSITIVOS d",1
+170,select * from mantenimientos m,PCSERVICEUSER,2025-07-10 15:08:52.138268,PCSERVICEUSER,2025-07-10 15:09:06.150563,"SELECT *
+FROM MANTENIMIENTOS m",2
+173,select * from operaciones,PCSERVICEUSER,2025-07-10 15:29:43.917218,PCSERVICEUSER,2025-07-10 15:29:43.917218,select * FROM OPERACIONES,1
+188,"select id_mantenimiento_disp, id_operacion, id_dispositivo from pcserviceuser.mantenimiento_dispositivo",PCSERVICEUSER,2025-07-10 22:59:04.720055,PCSERVICEUSER,2025-07-10 22:59:40.807005,"SELECT
+    ID_MANTENIMIENTO_DISP,
+    ID_OPERACION,
+    ID_DISPOSITIVO
+FROM
+    PCSERVICEUSER.MANTENIMIENTO_DISPOSITIVO",2
+63,update usuarios set contrasena_hash = 'y06elebvv52bt3np$ee360142c3ed533965e19c3c93fd51381f2ec31eaad4f6f06b985a3812de0c9e5ed7eeeee17ec7a226594db0631dd0bf2f1e503d7fbe8648630f9e28f98d55df' where nombre_usuario = 'leo_admin',PCSERVICEUSER,2025-06-10 22:50:04.794083,PCSERVICEUSER,2025-06-10 22:50:04.794083,"UPDATE USUARIOS
+SET CONTRASENA_HASH = 'Y06EleBVV52Bt3Np$ee360142c3ed533965e19c3c93fd51381f2ec31eaad4f6f06b985a3812de0c9e5ed7eeeee17ec7a226594db0631dd0bf2f1e503d7fbe8648630f9e28f98d55df'
+WHERE NOMBRE_USUARIO = 'leo_admin'",1
+2,select * from roles,PCSERVICEUSER,2025-05-17 05:32:51.184307,PCSERVICEUSER,2025-05-17 05:44:37.291297,SELECT * FROM ROLES,6
+65,-- reemplaza 'hash_real_de_luis' con el hash que generaste para la contraseña de luis,PCSERVICEUSER,2025-06-10 22:50:04.816113,PCSERVICEUSER,2025-06-10 22:54:03.425660,-- Reemplaza 'HASH_REAL_DE_LUIS' con el hash que generaste para la contraseña de Luis,2
+66,-- reemplaza 'hash_real_de_jose' con el hash que generaste para la contraseña de josé,PCSERVICEUSER,2025-06-10 22:50:04.821276,PCSERVICEUSER,2025-06-10 22:54:03.423116,-- Reemplaza 'HASH_REAL_DE_JOSE' con el hash que generaste para la contraseña de José,2
+67,commit,PCSERVICEUSER,2025-06-10 22:50:04.847826,PCSERVICEUSER,2025-06-10 22:54:11.162863,COMMIT,2
+68,-- no olvides hacer commit para guardar los cambios,PCSERVICEUSER,2025-06-10 22:50:04.876038,PCSERVICEUSER,2025-06-10 22:54:11.161777,-- No olvides hacer COMMIT para guardar los cambios,2
+69,update usuarios set contrasena_hash = 'k1f9lrwssjf47wlq$742a59d79d1b7ff49fc978eaac98e3159754e79c3453acc81096bbab94fa31b3ff0f6a6b3d4ed41b4fa1da33cc6ca575a26092282185dc8f678d35cd60fce488' where nombre_usuario = 'luis_visor',PCSERVICEUSER,2025-06-10 22:50:04.884018,PCSERVICEUSER,2025-06-10 22:50:04.884018,"UPDATE USUARIOS
+SET CONTRASENA_HASH = 'K1f9lRWSsjf47wlQ$742a59d79d1b7ff49fc978eaac98e3159754e79c3453acc81096bbab94fa31b3ff0f6a6b3d4ed41b4fa1da33cc6ca575a26092282185dc8f678d35cd60fce488'
+WHERE NOMBRE_USUARIO = 'luis_visor'",1
+71,update usuarios set contrasena_hash = 'scrypt:32768:8:1$npglraltdedwcb8i$6c46ddd7ff0731fa1993a7679edd58b9177a2d72878b7764815b3e89843b93f84a4b4e61b76452944b0b443db8480d9d2669d6d29ab4cd9db9b96f2368a627d0' where nombre_usuario = 'jose_editor',PCSERVICEUSER,2025-06-10 22:54:03.423400,PCSERVICEUSER,2025-06-10 22:54:03.423400,"UPDATE USUARIOS
+SET CONTRASENA_HASH = 'scrypt:32768:8:1$npgLRAltdedWCb8i$6c46ddd7ff0731fa1993a7679edd58b9177a2d72878b7764815b3e89843b93f84a4b4e61b76452944b0b443db8480d9d2669d6d29ab4cd9db9b96f2368a627d0'
+WHERE NOMBRE_USUARIO = 'jose_editor'",1
+72,update usuarios set contrasena_hash = 'scrypt:32768:8:1$k1f9lrwssjf47wlq$742a59d79d1b7ff49fc978eaac98e3159754e79c3453acc81096bbab94fa31b3ff0f6a6b3d4ed41b4fa1da33cc6ca575a26092282185dc8f678d35cd60fce488' where nombre_usuario = 'luis_visor',PCSERVICEUSER,2025-06-10 22:54:03.427465,PCSERVICEUSER,2025-06-10 22:54:03.427465,"UPDATE USUARIOS
+SET CONTRASENA_HASH = 'scrypt:32768:8:1$K1f9lRWSsjf47wlQ$742a59d79d1b7ff49fc978eaac98e3159754e79c3453acc81096bbab94fa31b3ff0f6a6b3d4ed41b4fa1da33cc6ca575a26092282185dc8f678d35cd60fce488'
+WHERE NOMBRE_USUARIO = 'luis_visor'",1
+84,select*from clientes,PCSERVICEUSER,2025-06-11 18:25:38.332846,PCSERVICEUSER,2025-06-11 18:25:38.332846,select*from CLIENTES,1
+91,"insert into clientes (nombre, apellido, celular, direccion, correo) values ('maría', 'gómez', '912345678', 'calle falsa 456', 'maria.gomez@email.com')",PCSERVICEUSER,2025-06-11 18:59:41.862190,PCSERVICEUSER,2025-06-11 18:59:41.862190,"INSERT INTO CLIENTES (NOMBRE, APELLIDO, CELULAR, DIRECCION, CORREO) VALUES
+('María', 'Gómez', '912345678', 'Calle Falsa 456', 'maria.gomez@email.com')",1
+131,"select coalesce(tipo_operacion, 'total') as tipo_operacion, sum(case when extract(month from fecha) = 1 then ingreso else 0 end) as enero, sum(case when extract(month from fecha) = 2 then ingreso else 0 end) as febrero, sum(case when extract(month from fecha) = 3 then ingreso else 0 end) as marzo, sum(case when extract(month from fecha) = 4 then ingreso else 0 end) as abril, sum(case when extract(month from fecha) = 5 then ingreso else 0 end) as mayo, sum(case when extract(month from fecha) = 6 then ingreso else 0 end) as junio, sum(case when extract(month from fecha) = 7 then ingreso else 0 end) as julio, sum(case when extract(month from fecha) = 8 then ingreso else 0 end) as agosto, sum(case when extract(month from fecha) = 9 then ingreso else 0 end) as septiembre, sum(case when extract(month from fecha) = 10 then ingreso else 0 end) as octubre, sum(case when extract(month from fecha) = 11 then ingreso else 0 end) as noviembre, sum(case when extract(month from fecha) = 12 then ingreso else 0 end) as diciembre, sum(ingreso) as total_anual from operaciones where ingreso is not null and extract(year from fecha) = 2025 group by rollup(tipo_operacion) order by case when tipo_operacion is null then 'zzzz' else tipo_operacion end",PCSERVICEUSER,2025-07-05 02:29:30.254172,PCSERVICEUSER,2025-07-05 13:11:24.786076,"SELECT 
+    COALESCE(TIPO_OPERACION, 'TOTAL') as Tipo_Operacion,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 1 THEN INGRESO ELSE 0 END) as Enero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 2 THEN INGRESO ELSE 0 END) as Febrero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 3 THEN INGRESO ELSE 0 END) as Marzo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 4 THEN INGRESO ELSE 0 END) as Abril,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 5 THEN INGRESO ELSE 0 END) as Mayo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 6 THEN INGRESO ELSE 0 END) as Junio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 7 THEN INGRESO ELSE 0 END) as Julio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 8 THEN INGRESO ELSE 0 END) as Agosto,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 9 THEN INGRESO ELSE 0 END) as Septiembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 10 THEN INGRESO ELSE 0 END) as Octubre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 11 THEN INGRESO ELSE 0 END) as Noviembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 12 THEN INGRESO ELSE 0 END) as Diciembre,
+    SUM(INGRESO) as Total_Anual
+FROM OPERACIONES
+WHERE INGRESO IS NOT NULL
+    AND EXTRACT(YEAR FROM FECHA) = 2025
+GROUP BY ROLLUP(TIPO_OPERACION)
+ORDER BY CASE WHEN TIPO_OPERACION IS NULL THEN 'ZZZZ' ELSE TIPO_OPERACION END",4
+189,"select id_dispositivo, id_cliente, tipo_dispositivo, marca, modelo from pcserviceuser.dispositivos",PCSERVICEUSER,2025-07-10 22:59:19.467297,PCSERVICEUSER,2025-07-10 22:59:19.467297,"SELECT
+    ID_DISPOSITIVO,
+    ID_CLIENTE,
+    TIPO_DISPOSITIVO,
+    MARCA,
+    MODELO
+FROM
+    PCSERVICEUSER.DISPOSITIVOS",1
+132,"select d.tipo_dispositivo, d.marca, -- ingresos por tipo de operación sum(case when o.tipo_operacion = 'venta' then o.ingreso else 0 end) as ingresos_ventas, sum(case when o.tipo_operacion = 'mantenimiento' then o.ingreso else 0 end) as ingresos_mantenimiento, sum(case when o.tipo_operacion = 'servicio' then o.ingreso else 0 end) as ingresos_servicios, -- egresos por tipo de operación sum(case when o.tipo_operacion = 'venta' then coalesce(o.egreso, 0) else 0 end) as egresos_ventas, sum(case when o.tipo_operacion = 'mantenimiento' then coalesce(o.egreso, 0) else 0 end) as egresos_mantenimiento, sum(case when o.tipo_operacion = 'servicio' then coalesce(o.egreso, 0) else 0 end) as egresos_servicios, -- rentabilidad neta por tipo de operación sum(case when o.tipo_operacion = 'venta' then (o.ingreso - coalesce(o.egreso, 0)) else 0 end) as ganancia_ventas, sum(case when o.tipo_operacion = 'mantenimiento' then (o.ingreso - coalesce(o.egreso, 0)) else 0 end) as ganancia_mantenimiento, sum(case when o.tipo_operacion = 'servicio' then (o.ingreso - coalesce(o.egreso, 0)) else 0 end) as ganancia_servicios, -- totales sum(o.ingreso) as total_ingresos, sum(coalesce(o.egreso, 0)) as total_egresos, sum(o.ingreso - coalesce(o.egreso, 0)) as rentabilidad_total, count(*) as total_operaciones from dispositivos d join clientes c on d.id_cliente = c.id_cliente join operaciones o on c.id_cliente = o.id_cliente where o.ingreso is not null and extract(year from o.fecha) = 2024 group by d.tipo_dispositivo, d.marca order by sum(o.ingreso - coalesce(o.egreso, 0)) desc",PCSERVICEUSER,2025-07-05 02:37:43.243684,PCSERVICEUSER,2025-07-05 03:25:12.556265,"SELECT 
+    D.TIPO_DISPOSITIVO,
+    D.MARCA,
+    -- Ingresos por tipo de operación
+    SUM(CASE WHEN O.TIPO_OPERACION = 'VENTA' THEN O.INGRESO ELSE 0 END) as Ingresos_Ventas,
+    SUM(CASE WHEN O.TIPO_OPERACION = 'MANTENIMIENTO' THEN O.INGRESO ELSE 0 END) as Ingresos_Mantenimiento,
+    SUM(CASE WHEN O.TIPO_OPERACION = 'SERVICIO' THEN O.INGRESO ELSE 0 END) as Ingresos_Servicios,
+
+    -- Egresos por tipo de operación
+    SUM(CASE WHEN O.TIPO_OPERACION = 'VENTA' THEN COALESCE(O.EGRESO, 0) ELSE 0 END) as Egresos_Ventas,
+    SUM(CASE WHEN O.TIPO_OPERACION = 'MANTENIMIENTO' THEN COALESCE(O.EGRESO, 0) ELSE 0 END) as Egresos_Mantenimiento,
+    SUM(CASE WHEN O.TIPO_OPERACION = 'SERVICIO' THEN COALESCE(O.EGRESO, 0) ELSE 0 END) as Egresos_Servicios,
+
+    -- Rentabilidad neta por tipo de operación
+    SUM(CASE WHEN O.TIPO_OPERACION = 'VENTA' THEN (O.INGRESO - COALESCE(O.EGRESO, 0)) ELSE 0 END) as Ganancia_Ventas,
+    SUM(CASE WHEN O.TIPO_OPERACION = 'MANTENIMIENTO' THEN (O.INGRESO - COALESCE(O.EGRESO, 0)) ELSE 0 END) as Ganancia_Mantenimiento,
+    SUM(CASE WHEN O.TIPO_OPERACION = 'SERVICIO' THEN (O.INGRESO - COALESCE(O.EGRESO, 0)) ELSE 0 END) as Ganancia_Servicios,
+
+    -- Totales
+    SUM(O.INGRESO) as Total_Ingresos,
+    SUM(COALESCE(O.EGRESO, 0)) as Total_Egresos,
+    SUM(O.INGRESO - COALESCE(O.EGRESO, 0)) as Rentabilidad_Total,
+    COUNT(*) as Total_Operaciones
+
+FROM DISPOSITIVOS D
+JOIN CLIENTES C ON D.ID_CLIENTE = C.ID_CLIENTE
+JOIN OPERACIONES O ON C.ID_CLIENTE = O.ID_CLIENTE
+WHERE O.INGRESO IS NOT NULL
+  AND EXTRACT(YEAR FROM O.FECHA) = 2024
+GROUP BY D.TIPO_DISPOSITIVO, D.MARCA
+ORDER BY SUM(O.INGRESO - COALESCE(O.EGRESO, 0)) DESC",2
+133,"select d.tipo_dispositivo, d.marca, -- ingresos por tipo de operación sum(case when o.tipo_operacion = 'venta' then o.ingreso else 0 end) as ingresos_ventas, sum(case when o.tipo_operacion = 'mantenimiento' then o.ingreso else 0 end) as ingresos_mantenimiento, sum(case when o.tipo_operacion = 'servicio' then o.ingreso else 0 end) as ingresos_servicios, -- egresos por tipo de operación sum(case when o.tipo_operacion = 'venta' then coalesce(o.egreso, 0) else 0 end) as egresos_ventas, sum(case when o.tipo_operacion = 'mantenimiento' then coalesce(o.egreso, 0) else 0 end) as egresos_mantenimiento, sum(case when o.tipo_operacion = 'servicio' then coalesce(o.egreso, 0) else 0 end) as egresos_servicios, -- rentabilidad neta por tipo de operación sum(case when o.tipo_operacion = 'venta' then (o.ingreso - coalesce(o.egreso, 0)) else 0 end) as ganancia_ventas, sum(case when o.tipo_operacion = 'mantenimiento' then (o.ingreso - coalesce(o.egreso, 0)) else 0 end) as ganancia_mantenimiento, sum(case when o.tipo_operacion = 'servicio' then (o.ingreso - coalesce(o.egreso, 0)) else 0 end) as ganancia_servicios, -- totales sum(o.ingreso) as total_ingresos, sum(coalesce(o.egreso, 0)) as total_egresos, sum(o.ingreso - coalesce(o.egreso, 0)) as rentabilidad_total, count(*) as total_operaciones from dispositivos d join clientes c on d.id_cliente = c.id_cliente join operaciones o on c.id_cliente = o.id_cliente where o.ingreso is not null and extract(year from o.fecha) = 2025 group by d.tipo_dispositivo, d.marca order by sum(o.ingreso - coalesce(o.egreso, 0)) desc",PCSERVICEUSER,2025-07-05 02:37:54.377266,PCSERVICEUSER,2025-07-05 02:37:54.377266,"SELECT 
+    D.TIPO_DISPOSITIVO,
+    D.MARCA,
+    -- Ingresos por tipo de operación
+    SUM(CASE WHEN O.TIPO_OPERACION = 'VENTA' THEN O.INGRESO ELSE 0 END) as Ingresos_Ventas,
+    SUM(CASE WHEN O.TIPO_OPERACION = 'MANTENIMIENTO' THEN O.INGRESO ELSE 0 END) as Ingresos_Mantenimiento,
+    SUM(CASE WHEN O.TIPO_OPERACION = 'SERVICIO' THEN O.INGRESO ELSE 0 END) as Ingresos_Servicios,
+
+    -- Egresos por tipo de operación
+    SUM(CASE WHEN O.TIPO_OPERACION = 'VENTA' THEN COALESCE(O.EGRESO, 0) ELSE 0 END) as Egresos_Ventas,
+    SUM(CASE WHEN O.TIPO_OPERACION = 'MANTENIMIENTO' THEN COALESCE(O.EGRESO, 0) ELSE 0 END) as Egresos_Mantenimiento,
+    SUM(CASE WHEN O.TIPO_OPERACION = 'SERVICIO' THEN COALESCE(O.EGRESO, 0) ELSE 0 END) as Egresos_Servicios,
+
+    -- Rentabilidad neta por tipo de operación
+    SUM(CASE WHEN O.TIPO_OPERACION = 'VENTA' THEN (O.INGRESO - COALESCE(O.EGRESO, 0)) ELSE 0 END) as Ganancia_Ventas,
+    SUM(CASE WHEN O.TIPO_OPERACION = 'MANTENIMIENTO' THEN (O.INGRESO - COALESCE(O.EGRESO, 0)) ELSE 0 END) as Ganancia_Mantenimiento,
+    SUM(CASE WHEN O.TIPO_OPERACION = 'SERVICIO' THEN (O.INGRESO - COALESCE(O.EGRESO, 0)) ELSE 0 END) as Ganancia_Servicios,
+
+    -- Totales
+    SUM(O.INGRESO) as Total_Ingresos,
+    SUM(COALESCE(O.EGRESO, 0)) as Total_Egresos,
+    SUM(O.INGRESO - COALESCE(O.EGRESO, 0)) as Rentabilidad_Total,
+    COUNT(*) as Total_Operaciones
+
+FROM DISPOSITIVOS D
+JOIN CLIENTES C ON D.ID_CLIENTE = C.ID_CLIENTE
+JOIN OPERACIONES O ON C.ID_CLIENTE = O.ID_CLIENTE
+WHERE O.INGRESO IS NOT NULL
+  AND EXTRACT(YEAR FROM O.FECHA) = 2025
+GROUP BY D.TIPO_DISPOSITIVO, D.MARCA
+ORDER BY SUM(O.INGRESO - COALESCE(O.EGRESO, 0)) DESC",1
+169,"select d.id_dispositivo, d.id_cliente, d.tipo_dispositivo, d.marca from dispositivos d",PCSERVICEUSER,2025-07-10 15:05:54.339215,PCSERVICEUSER,2025-07-10 15:05:54.339215,"SELECT d.ID_DISPOSITIVO, d.ID_CLIENTE, d.TIPO_DISPOSITIVO, d.MARCA
+FROM DISPOSITIVOS d",1
+134,"with datos_crecimiento as ( select extract(year from fecha) as año, extract(month from fecha) as mes, sum(ingreso) as ingresos_mes, lag(sum(ingreso)) over (order by extract(year from fecha), extract(month from fecha)) as mes_anterior, count(*) as operaciones_mes from operaciones where ingreso is not null group by extract(year from fecha), extract(month from fecha) ) select año, sum(case when mes = 1 then ingresos_mes end) as enero, sum(case when mes = 2 then ingresos_mes end) as febrero, sum(case when mes = 3 then ingresos_mes end) as marzo, sum(case when mes = 4 then ingresos_mes end) as abril, sum(case when mes = 5 then ingresos_mes end) as mayo, sum(case when mes = 6 then ingresos_mes end) as junio, sum(case when mes = 7 then ingresos_mes end) as julio, sum(case when mes = 8 then ingresos_mes end) as agosto, sum(case when mes = 9 then ingresos_mes end) as septiembre, sum(case when mes = 10 then ingresos_mes end) as octubre, sum(case when mes = 11 then ingresos_mes end) as noviembre, sum(case when mes = 12 then ingresos_mes end) as diciembre, sum(ingresos_mes) as total_anual, -- crecimiento respecto al año anterior round(((sum(ingresos_mes) - lag(sum(ingresos_mes)) over (order by año)) / nullif(lag(sum(ingresos_mes)) over (order by año), 0)) * 100, 2) as crecimiento_anual_pct from datos_crecimiento group by año order by año",PCSERVICEUSER,2025-07-05 02:56:53.225941,PCSERVICEUSER,2025-07-05 03:25:19.150736,"WITH datos_crecimiento AS (
+    SELECT 
+        EXTRACT(YEAR FROM FECHA) as Año,
+        EXTRACT(MONTH FROM FECHA) as Mes,
+        SUM(INGRESO) as Ingresos_Mes,
+        LAG(SUM(INGRESO)) OVER (ORDER BY EXTRACT(YEAR FROM FECHA), EXTRACT(MONTH FROM FECHA)) as Mes_Anterior,
+        COUNT(*) as Operaciones_Mes
+    FROM OPERACIONES
+    WHERE INGRESO IS NOT NULL
+    GROUP BY EXTRACT(YEAR FROM FECHA), EXTRACT(MONTH FROM FECHA)
+)
+SELECT 
+    Año,
+    SUM(CASE WHEN Mes = 1 THEN Ingresos_Mes END) as Enero,
+    SUM(CASE WHEN Mes = 2 THEN Ingresos_Mes END) as Febrero,
+    SUM(CASE WHEN Mes = 3 THEN Ingresos_Mes END) as Marzo,
+    SUM(CASE WHEN Mes = 4 THEN Ingresos_Mes END) as Abril,
+    SUM(CASE WHEN Mes = 5 THEN Ingresos_Mes END) as Mayo,
+    SUM(CASE WHEN Mes = 6 THEN Ingresos_Mes END) as Junio,
+    SUM(CASE WHEN Mes = 7 THEN Ingresos_Mes END) as Julio,
+    SUM(CASE WHEN Mes = 8 THEN Ingresos_Mes END) as Agosto,
+    SUM(CASE WHEN Mes = 9 THEN Ingresos_Mes END) as Septiembre,
+    SUM(CASE WHEN Mes = 10 THEN Ingresos_Mes END) as Octubre,
+    SUM(CASE WHEN Mes = 11 THEN Ingresos_Mes END) as Noviembre,
+    SUM(CASE WHEN Mes = 12 THEN Ingresos_Mes END) as Diciembre,
+    SUM(Ingresos_Mes) as Total_Anual,
+    
+    -- Crecimiento respecto al año anterior
+    ROUND(((SUM(Ingresos_Mes) - LAG(SUM(Ingresos_Mes)) OVER (ORDER BY Año)) / 
+           NULLIF(LAG(SUM(Ingresos_Mes)) OVER (ORDER BY Año), 0)) * 100, 2) as Crecimiento_Anual_Pct
+FROM datos_crecimiento
+GROUP BY Año
+ORDER BY Año",5
+128,"select tipo_operacion, sum(case when extract(month from fecha) = 1 then ingreso else 0 end) as enero, sum(case when extract(month from fecha) = 2 then ingreso else 0 end) as febrero, sum(case when extract(month from fecha) = 3 then ingreso else 0 end) as marzo, sum(case when extract(month from fecha) = 4 then ingreso else 0 end) as abril, sum(case when extract(month from fecha) = 5 then ingreso else 0 end) as mayo, sum(case when extract(month from fecha) = 6 then ingreso else 0 end) as junio, sum(case when extract(month from fecha) = 7 then ingreso else 0 end) as julio, sum(case when extract(month from fecha) = 8 then ingreso else 0 end) as agosto, sum(case when extract(month from fecha) = 9 then ingreso else 0 end) as septiembre, sum(case when extract(month from fecha) = 10 then ingreso else 0 end) as octubre, sum(case when extract(month from fecha) = 11 then ingreso else 0 end) as noviembre, sum(case when extract(month from fecha) = 12 then ingreso else 0 end) as diciembre, sum(ingreso) as total_anual from operaciones where ingreso is not null and extract(year from fecha) = 2022 -- cambiar año según necesidad group by tipo_operacion order by tipo_operacion",PCSERVICEUSER,2025-07-05 02:28:03.850862,PCSERVICEUSER,2025-07-05 02:28:03.850862,"SELECT 
+    TIPO_OPERACION,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 1 THEN INGRESO ELSE 0 END) as Enero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 2 THEN INGRESO ELSE 0 END) as Febrero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 3 THEN INGRESO ELSE 0 END) as Marzo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 4 THEN INGRESO ELSE 0 END) as Abril,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 5 THEN INGRESO ELSE 0 END) as Mayo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 6 THEN INGRESO ELSE 0 END) as Junio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 7 THEN INGRESO ELSE 0 END) as Julio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 8 THEN INGRESO ELSE 0 END) as Agosto,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 9 THEN INGRESO ELSE 0 END) as Septiembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 10 THEN INGRESO ELSE 0 END) as Octubre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 11 THEN INGRESO ELSE 0 END) as Noviembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 12 THEN INGRESO ELSE 0 END) as Diciembre,
+    SUM(INGRESO) as Total_Anual
+FROM OPERACIONES
+WHERE INGRESO IS NOT NULL
+  AND EXTRACT(YEAR FROM FECHA) = 2022  -- Cambiar año según necesidad
+GROUP BY TIPO_OPERACION
+ORDER BY TIPO_OPERACION",1
+129,"select tipo_operacion, sum(case when extract(month from fecha) = 1 then ingreso else 0 end) as enero, sum(case when extract(month from fecha) = 2 then ingreso else 0 end) as febrero, sum(case when extract(month from fecha) = 3 then ingreso else 0 end) as marzo, sum(case when extract(month from fecha) = 4 then ingreso else 0 end) as abril, sum(case when extract(month from fecha) = 5 then ingreso else 0 end) as mayo, sum(case when extract(month from fecha) = 6 then ingreso else 0 end) as junio, sum(case when extract(month from fecha) = 7 then ingreso else 0 end) as julio, sum(case when extract(month from fecha) = 8 then ingreso else 0 end) as agosto, sum(case when extract(month from fecha) = 9 then ingreso else 0 end) as septiembre, sum(case when extract(month from fecha) = 10 then ingreso else 0 end) as octubre, sum(case when extract(month from fecha) = 11 then ingreso else 0 end) as noviembre, sum(case when extract(month from fecha) = 12 then ingreso else 0 end) as diciembre, sum(ingreso) as total_anual from operaciones where ingreso is not null and extract(year from fecha) = 2025 -- cambiar año según necesidad group by tipo_operacion order by tipo_operacion",PCSERVICEUSER,2025-07-05 02:28:18.341438,PCSERVICEUSER,2025-07-05 02:28:18.341438,"SELECT 
+    TIPO_OPERACION,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 1 THEN INGRESO ELSE 0 END) as Enero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 2 THEN INGRESO ELSE 0 END) as Febrero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 3 THEN INGRESO ELSE 0 END) as Marzo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 4 THEN INGRESO ELSE 0 END) as Abril,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 5 THEN INGRESO ELSE 0 END) as Mayo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 6 THEN INGRESO ELSE 0 END) as Junio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 7 THEN INGRESO ELSE 0 END) as Julio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 8 THEN INGRESO ELSE 0 END) as Agosto,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 9 THEN INGRESO ELSE 0 END) as Septiembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 10 THEN INGRESO ELSE 0 END) as Octubre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 11 THEN INGRESO ELSE 0 END) as Noviembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 12 THEN INGRESO ELSE 0 END) as Diciembre,
+    SUM(INGRESO) as Total_Anual
+FROM OPERACIONES
+WHERE INGRESO IS NOT NULL
+  AND EXTRACT(YEAR FROM FECHA) = 2025  -- Cambiar año según necesidad
+GROUP BY TIPO_OPERACION
+ORDER BY TIPO_OPERACION",1
+127,"select tipo_operacion, sum(case when extract(month from fecha) = 1 then ingreso else 0 end) as enero, sum(case when extract(month from fecha) = 2 then ingreso else 0 end) as febrero, sum(case when extract(month from fecha) = 3 then ingreso else 0 end) as marzo, sum(case when extract(month from fecha) = 4 then ingreso else 0 end) as abril, sum(case when extract(month from fecha) = 5 then ingreso else 0 end) as mayo, sum(case when extract(month from fecha) = 6 then ingreso else 0 end) as junio, sum(case when extract(month from fecha) = 7 then ingreso else 0 end) as julio, sum(case when extract(month from fecha) = 8 then ingreso else 0 end) as agosto, sum(case when extract(month from fecha) = 9 then ingreso else 0 end) as septiembre, sum(case when extract(month from fecha) = 10 then ingreso else 0 end) as octubre, sum(case when extract(month from fecha) = 11 then ingreso else 0 end) as noviembre, sum(case when extract(month from fecha) = 12 then ingreso else 0 end) as diciembre, sum(ingreso) as total_anual from operaciones where ingreso is not null and extract(year from fecha) = 2024 -- cambiar año según necesidad group by tipo_operacion order by tipo_operacion",PCSERVICEUSER,2025-07-05 02:27:34.584978,PCSERVICEUSER,2025-07-05 02:28:12.431786,"SELECT 
+    TIPO_OPERACION,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 1 THEN INGRESO ELSE 0 END) as Enero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 2 THEN INGRESO ELSE 0 END) as Febrero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 3 THEN INGRESO ELSE 0 END) as Marzo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 4 THEN INGRESO ELSE 0 END) as Abril,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 5 THEN INGRESO ELSE 0 END) as Mayo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 6 THEN INGRESO ELSE 0 END) as Junio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 7 THEN INGRESO ELSE 0 END) as Julio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 8 THEN INGRESO ELSE 0 END) as Agosto,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 9 THEN INGRESO ELSE 0 END) as Septiembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 10 THEN INGRESO ELSE 0 END) as Octubre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 11 THEN INGRESO ELSE 0 END) as Noviembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 12 THEN INGRESO ELSE 0 END) as Diciembre,
+    SUM(INGRESO) as Total_Anual
+FROM OPERACIONES
+WHERE INGRESO IS NOT NULL
+  AND EXTRACT(YEAR FROM FECHA) = 2024  -- Cambiar año según necesidad
+GROUP BY TIPO_OPERACION
+ORDER BY TIPO_OPERACION",2
+130,"select coalesce(tipo_operacion, 'total') as tipo_operacion, sum(case when extract(month from fecha) = 1 then ingreso else 0 end) as enero, sum(case when extract(month from fecha) = 2 then ingreso else 0 end) as febrero, sum(case when extract(month from fecha) = 3 then ingreso else 0 end) as marzo, sum(case when extract(month from fecha) = 4 then ingreso else 0 end) as abril, sum(case when extract(month from fecha) = 5 then ingreso else 0 end) as mayo, sum(case when extract(month from fecha) = 6 then ingreso else 0 end) as junio, sum(case when extract(month from fecha) = 7 then ingreso else 0 end) as julio, sum(case when extract(month from fecha) = 8 then ingreso else 0 end) as agosto, sum(case when extract(month from fecha) = 9 then ingreso else 0 end) as septiembre, sum(case when extract(month from fecha) = 10 then ingreso else 0 end) as octubre, sum(case when extract(month from fecha) = 11 then ingreso else 0 end) as noviembre, sum(case when extract(month from fecha) = 12 then ingreso else 0 end) as diciembre, sum(ingreso) as total_anual from operaciones where ingreso is not null and extract(year from fecha) = 2024 group by rollup(tipo_operacion) order by case when tipo_operacion is null then 'zzzz' else tipo_operacion end",PCSERVICEUSER,2025-07-05 02:29:21.144849,PCSERVICEUSER,2025-07-05 02:29:21.144849,"SELECT 
+    COALESCE(TIPO_OPERACION, 'TOTAL') as Tipo_Operacion,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 1 THEN INGRESO ELSE 0 END) as Enero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 2 THEN INGRESO ELSE 0 END) as Febrero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 3 THEN INGRESO ELSE 0 END) as Marzo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 4 THEN INGRESO ELSE 0 END) as Abril,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 5 THEN INGRESO ELSE 0 END) as Mayo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 6 THEN INGRESO ELSE 0 END) as Junio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 7 THEN INGRESO ELSE 0 END) as Julio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 8 THEN INGRESO ELSE 0 END) as Agosto,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 9 THEN INGRESO ELSE 0 END) as Septiembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 10 THEN INGRESO ELSE 0 END) as Octubre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 11 THEN INGRESO ELSE 0 END) as Noviembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 12 THEN INGRESO ELSE 0 END) as Diciembre,
+    SUM(INGRESO) as Total_Anual
+FROM OPERACIONES
+WHERE INGRESO IS NOT NULL
+  AND EXTRACT(YEAR FROM FECHA) = 2024
+GROUP BY ROLLUP(TIPO_OPERACION)
+ORDER BY CASE WHEN TIPO_OPERACION IS NULL THEN 'ZZZZ' ELSE TIPO_OPERACION END",1
+181,select*from mantenimiento_dispositivo order by id_operacion,PCSERVICEUSER,2025-07-10 19:36:18.972678,PCSERVICEUSER,2025-07-10 19:36:49.334154,select*from MANTENIMIENTO_DISPOSITIVO order by ID_OPERACION,2
+184,select * from clientes c,PCSERVICEUSER,2025-07-10 20:37:58.236015,PCSERVICEUSER,2025-07-10 20:37:58.236015,select * from CLIENTES C,1
+177,select*from operaciones order by id_operacion,PCSERVICEUSER,2025-07-10 18:36:38.534731,PCSERVICEUSER,2025-07-10 19:58:39.794543,select*from OPERACIONES order by ID_OPERACION,3
+136,"select tipo_operacion, sum(case when extract(month from fecha) = 1 then ingreso else 0 end) as enero, sum(case when extract(month from fecha) = 2 then ingreso else 0 end) as febrero, sum(case when extract(month from fecha) = 3 then ingreso else 0 end) as marzo, sum(case when extract(month from fecha) = 4 then ingreso else 0 end) as abril, sum(case when extract(month from fecha) = 5 then ingreso else 0 end) as mayo, sum(case when extract(month from fecha) = 6 then ingreso else 0 end) as junio, sum(case when extract(month from fecha) = 7 then ingreso else 0 end) as julio, sum(case when extract(month from fecha) = 8 then ingreso else 0 end) as agosto, sum(case when extract(month from fecha) = 9 then ingreso else 0 end) as septiembre, sum(case when extract(month from fecha) = 10 then ingreso else 0 end) as octubre, sum(case when extract(month from fecha) = 11 then ingreso else 0 end) as noviembre, sum(case when extract(month from fecha) = 12 then ingreso else 0 end) as diciembre, -- métricas de crecimiento sum(ingreso) as total_anual, round(avg(ingreso), 2) as promedio_mensual, -- tendencia (comparando primer semestre vs segundo semestre) case when (sum(case when extract(month from fecha) between 7 and 12 then ingreso else 0 end) - sum(case when extract(month from fecha) between 1 and 6 then ingreso else 0 end)) > 0 then 'creciente' when (sum(case when extract(month from fecha) between 7 and 12 then ingreso else 0 end) - sum(case when extract(month from fecha) between 1 and 6 then ingreso else 0 end)) < 0 then 'decreciente' else 'estable' end as tendencia_anual from operaciones where ingreso is not null and extract(year from fecha) = 2024 -- cambiar año según necesidad group by tipo_operacion order by sum(ingreso) desc",PCSERVICEUSER,2025-07-05 02:57:45.888903,PCSERVICEUSER,2025-07-05 02:57:45.888903,"SELECT 
+    TIPO_OPERACION,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 1 THEN INGRESO ELSE 0 END) as Enero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 2 THEN INGRESO ELSE 0 END) as Febrero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 3 THEN INGRESO ELSE 0 END) as Marzo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 4 THEN INGRESO ELSE 0 END) as Abril,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 5 THEN INGRESO ELSE 0 END) as Mayo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 6 THEN INGRESO ELSE 0 END) as Junio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 7 THEN INGRESO ELSE 0 END) as Julio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 8 THEN INGRESO ELSE 0 END) as Agosto,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 9 THEN INGRESO ELSE 0 END) as Septiembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 10 THEN INGRESO ELSE 0 END) as Octubre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 11 THEN INGRESO ELSE 0 END) as Noviembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 12 THEN INGRESO ELSE 0 END) as Diciembre,
+
+    -- Métricas de crecimiento
+    SUM(INGRESO) as Total_Anual,
+    ROUND(AVG(INGRESO), 2) as Promedio_Mensual,
+
+    -- Tendencia (comparando primer semestre vs segundo semestre)
+    CASE 
+        WHEN (SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) BETWEEN 7 AND 12 THEN INGRESO ELSE 0 END) - 
+              SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) BETWEEN 1 AND 6 THEN INGRESO ELSE 0 END)) > 0 THEN 'CRECIENTE'
+        WHEN (SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) BETWEEN 7 AND 12 THEN INGRESO ELSE 0 END) - 
+              SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) BETWEEN 1 AND 6 THEN INGRESO ELSE 0 END)) < 0 THEN 'DECRECIENTE'
+        ELSE 'ESTABLE'
+    END as Tendencia_Anual
+
+FROM OPERACIONES
+WHERE INGRESO IS NOT NULL
+  AND EXTRACT(YEAR FROM FECHA) = 2024  -- Cambiar año según necesidad
+GROUP BY TIPO_OPERACION
+ORDER BY SUM(INGRESO) DESC",1
+137,"select tipo_operacion, sum(case when extract(month from fecha) = 1 then ingreso else 0 end) as enero, sum(case when extract(month from fecha) = 2 then ingreso else 0 end) as febrero, sum(case when extract(month from fecha) = 3 then ingreso else 0 end) as marzo, sum(case when extract(month from fecha) = 4 then ingreso else 0 end) as abril, sum(case when extract(month from fecha) = 5 then ingreso else 0 end) as mayo, sum(case when extract(month from fecha) = 6 then ingreso else 0 end) as junio, sum(case when extract(month from fecha) = 7 then ingreso else 0 end) as julio, sum(case when extract(month from fecha) = 8 then ingreso else 0 end) as agosto, sum(case when extract(month from fecha) = 9 then ingreso else 0 end) as septiembre, sum(case when extract(month from fecha) = 10 then ingreso else 0 end) as octubre, sum(case when extract(month from fecha) = 11 then ingreso else 0 end) as noviembre, sum(case when extract(month from fecha) = 12 then ingreso else 0 end) as diciembre, -- métricas de crecimiento sum(ingreso) as total_anual, round(avg(ingreso), 2) as promedio_mensual, -- tendencia (comparando primer semestre vs segundo semestre) case when (sum(case when extract(month from fecha) between 7 and 12 then ingreso else 0 end) - sum(case when extract(month from fecha) between 1 and 6 then ingreso else 0 end)) > 0 then 'creciente' when (sum(case when extract(month from fecha) between 7 and 12 then ingreso else 0 end) - sum(case when extract(month from fecha) between 1 and 6 then ingreso else 0 end)) < 0 then 'decreciente' else 'estable' end as tendencia_anual from operaciones where ingreso is not null and extract(year from fecha) = 2025 -- cambiar año según necesidad group by tipo_operacion order by sum(ingreso) desc",PCSERVICEUSER,2025-07-05 02:57:54.455532,PCSERVICEUSER,2025-07-05 02:57:54.455532,"SELECT 
+    TIPO_OPERACION,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 1 THEN INGRESO ELSE 0 END) as Enero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 2 THEN INGRESO ELSE 0 END) as Febrero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 3 THEN INGRESO ELSE 0 END) as Marzo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 4 THEN INGRESO ELSE 0 END) as Abril,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 5 THEN INGRESO ELSE 0 END) as Mayo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 6 THEN INGRESO ELSE 0 END) as Junio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 7 THEN INGRESO ELSE 0 END) as Julio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 8 THEN INGRESO ELSE 0 END) as Agosto,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 9 THEN INGRESO ELSE 0 END) as Septiembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 10 THEN INGRESO ELSE 0 END) as Octubre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 11 THEN INGRESO ELSE 0 END) as Noviembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 12 THEN INGRESO ELSE 0 END) as Diciembre,
+
+    -- Métricas de crecimiento
+    SUM(INGRESO) as Total_Anual,
+    ROUND(AVG(INGRESO), 2) as Promedio_Mensual,
+
+    -- Tendencia (comparando primer semestre vs segundo semestre)
+    CASE 
+        WHEN (SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) BETWEEN 7 AND 12 THEN INGRESO ELSE 0 END) - 
+              SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) BETWEEN 1 AND 6 THEN INGRESO ELSE 0 END)) > 0 THEN 'CRECIENTE'
+        WHEN (SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) BETWEEN 7 AND 12 THEN INGRESO ELSE 0 END) - 
+              SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) BETWEEN 1 AND 6 THEN INGRESO ELSE 0 END)) < 0 THEN 'DECRECIENTE'
+        ELSE 'ESTABLE'
+    END as Tendencia_Anual
+
+FROM OPERACIONES
+WHERE INGRESO IS NOT NULL
+  AND EXTRACT(YEAR FROM FECHA) = 2025  -- Cambiar año según necesidad
+GROUP BY TIPO_OPERACION
+ORDER BY SUM(INGRESO) DESC",1
+135,"with crecimiento_detallado as ( select extract(year from fecha) as año, extract(month from fecha) as mes, to_char(fecha, 'yyyy-mm') as periodo, sum(ingreso) as ingresos, count(*) as num_operaciones, avg(ingreso) as ingreso_promedio, -- ventana móvil para calcular crecimiento lag(sum(ingreso), 1) over (order by extract(year from fecha), extract(month from fecha)) as mes_anterior, lag(sum(ingreso), 12) over (order by extract(year from fecha), extract(month from fecha)) as mismo_mes_año_anterior from operaciones where ingreso is not null group by extract(year from fecha), extract(month from fecha), to_char(fecha, 'yyyy-mm') ) select año, mes, periodo, ingresos, num_operaciones, round(ingreso_promedio, 2) as ingreso_promedio, -- crecimiento mes a mes case when mes_anterior is not null and mes_anterior > 0 then round(((ingresos - mes_anterior) / mes_anterior) * 100, 2) else null end as crecimiento_mes_anterior_pct, -- crecimiento año a año (mismo mes) case when mismo_mes_año_anterior is not null and mismo_mes_año_anterior > 0 then round(((ingresos - mismo_mes_año_anterior) / mismo_mes_año_anterior) * 100, 2) else null end as crecimiento_mismo_mes_año_anterior_pct, -- diferencia absoluta coalesce(ingresos - mes_anterior, 0) as diferencia_mes_anterior, coalesce(ingresos - mismo_mes_año_anterior, 0) as diferencia_año_anterior from crecimiento_detallado order by año, mes",PCSERVICEUSER,2025-07-05 02:57:27.598057,PCSERVICEUSER,2025-07-05 03:00:33.060851,"WITH crecimiento_detallado AS (
+    SELECT 
+        EXTRACT(YEAR FROM FECHA) as Año,
+        EXTRACT(MONTH FROM FECHA) as Mes,
+        TO_CHAR(FECHA, 'YYYY-MM') as Periodo,
+        SUM(INGRESO) as Ingresos,
+        COUNT(*) as Num_Operaciones,
+        AVG(INGRESO) as Ingreso_Promedio,
+        
+        -- Ventana móvil para calcular crecimiento
+        LAG(SUM(INGRESO), 1) OVER (ORDER BY EXTRACT(YEAR FROM FECHA), EXTRACT(MONTH FROM FECHA)) as Mes_Anterior,
+        LAG(SUM(INGRESO), 12) OVER (ORDER BY EXTRACT(YEAR FROM FECHA), EXTRACT(MONTH FROM FECHA)) as Mismo_Mes_Año_Anterior
+    FROM OPERACIONES
+    WHERE INGRESO IS NOT NULL
+    GROUP BY EXTRACT(YEAR FROM FECHA), EXTRACT(MONTH FROM FECHA), TO_CHAR(FECHA, 'YYYY-MM')
+)
+SELECT 
+    Año,
+    Mes,
+    Periodo,
+    Ingresos,
+    Num_Operaciones,
+    ROUND(Ingreso_Promedio, 2) as Ingreso_Promedio,
+    
+    -- Crecimiento mes a mes
+    CASE 
+        WHEN Mes_Anterior IS NOT NULL AND Mes_Anterior > 0 THEN
+            ROUND(((Ingresos - Mes_Anterior) / Mes_Anterior) * 100, 2)
+        ELSE NULL
+    END as Crecimiento_Mes_Anterior_Pct,
+
+    -- Crecimiento año a año (mismo mes)
+    CASE 
+        WHEN Mismo_Mes_Año_Anterior IS NOT NULL AND Mismo_Mes_Año_Anterior > 0 THEN
+            ROUND(((Ingresos - Mismo_Mes_Año_Anterior) / Mismo_Mes_Año_Anterior) * 100, 2)
+        ELSE NULL
+    END as Crecimiento_Mismo_Mes_Año_Anterior_Pct,
+
+    -- Diferencia absoluta
+    COALESCE(Ingresos - Mes_Anterior, 0) as Diferencia_Mes_Anterior,
+    COALESCE(Ingresos - Mismo_Mes_Año_Anterior, 0) as Diferencia_Año_Anterior
+
+FROM crecimiento_detallado
+ORDER BY Año, Mes",2
+142,----ingresos mensuales por tipo de operación --------------------------------------------------,PCSERVICEUSER,2025-07-05 03:25:04.598562,PCSERVICEUSER,2025-07-05 03:25:04.598562,----Ingresos mensuales por tipo de operación --------------------------------------------------,1
+143,----rentabilidad por tipo de dispositivo --------------------------------------------------,PCSERVICEUSER,2025-07-05 03:25:12.550623,PCSERVICEUSER,2025-07-05 03:25:12.550623,----Rentabilidad por tipo de dispositivo --------------------------------------------------,1
+144,-----tendencias de crecimiento mensual-----------------------------------,PCSERVICEUSER,2025-07-05 03:25:19.158245,PCSERVICEUSER,2025-07-05 03:25:19.158245,-----Tendencias de crecimiento mensual-----------------------------------,1
+146,--ingresos mensuales por tipo de operación --------------------------------------------------,PCSERVICEUSER,2025-07-05 13:11:24.722026,PCSERVICEUSER,2025-07-05 13:11:24.722026,--Ingresos mensuales por tipo de operación --------------------------------------------------,1
+163,select*from mantenimiento_dispositivo,PCSERVICEUSER,2025-07-10 14:09:59.498826,PCSERVICEUSER,2025-07-10 19:36:10.051929,select*from MANTENIMIENTO_DISPOSITIVO,15
+182,select*from ventas order by id_operacion,PCSERVICEUSER,2025-07-10 19:50:40.669097,PCSERVICEUSER,2025-07-10 19:50:40.669097,select*from VENTAS order by ID_OPERACION,1
+179,select * from all_constraints where constraint_name = 'sys_c0023527',PCSERVICEUSER,2025-07-10 18:59:22.550271,PCSERVICEUSER,2025-07-10 18:59:22.550271,SELECT * FROM all_constraints WHERE constraint_name = 'SYS_C0023527',1
+180,select*from mantenimientos order by id_operacion,PCSERVICEUSER,2025-07-10 19:36:02.058724,PCSERVICEUSER,2025-07-10 19:36:53.477124,select*from mantenimientos order by ID_OPERACION,3
+199,/,PCSERVICEUSER,2025-07-11 15:39:47.255368,PCSERVICEUSER,2025-07-11 15:39:47.255368,/,1
+147,"select coalesce(tipo_operacion, 'total') as tipo_operacion, sum(case when extract(month from fecha) = 1 then ingreso else 0 end) as enero, sum(case when extract(month from fecha) = 2 then ingreso else 0 end) as febrero, sum(case when extract(month from fecha) = 3 then ingreso else 0 end) as marzo, sum(case when extract(month from fecha) = 4 then ingreso else 0 end) as abril, sum(case when extract(month from fecha) = 5 then ingreso else 0 end) as mayo, sum(case when extract(month from fecha) = 6 then ingreso else 0 end) as junio, sum(case when extract(month from fecha) = 7 then ingreso else 0 end) as julio, sum(case when extract(month from fecha) = 8 then ingreso else 0 end) as agosto, sum(case when extract(month from fecha) = 9 then ingreso else 0 end) as septiembre, sum(case when extract(month from fecha) = 10 then ingreso else 0 end) as octubre, sum(case when extract(month from fecha) = 11 then ingreso else 0 end) as noviembre, sum(case when extract(month from fecha) = 12 then ingreso else 0 end) as diciembre, sum(ingreso) as total_anual from operaciones where ingreso is not null and extract(year from fecha) = 2025 group by rollup(tipo_operacion)",PCSERVICEUSER,2025-07-05 13:24:44.722834,PCSERVICEUSER,2025-07-05 13:24:44.722834,"SELECT 
+    COALESCE(TIPO_OPERACION, 'TOTAL') as Tipo_Operacion,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 1 THEN INGRESO ELSE 0 END) as Enero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 2 THEN INGRESO ELSE 0 END) as Febrero,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 3 THEN INGRESO ELSE 0 END) as Marzo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 4 THEN INGRESO ELSE 0 END) as Abril,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 5 THEN INGRESO ELSE 0 END) as Mayo,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 6 THEN INGRESO ELSE 0 END) as Junio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 7 THEN INGRESO ELSE 0 END) as Julio,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 8 THEN INGRESO ELSE 0 END) as Agosto,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 9 THEN INGRESO ELSE 0 END) as Septiembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 10 THEN INGRESO ELSE 0 END) as Octubre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 11 THEN INGRESO ELSE 0 END) as Noviembre,
+    SUM(CASE WHEN EXTRACT(MONTH FROM FECHA) = 12 THEN INGRESO ELSE 0 END) as Diciembre,
+    SUM(INGRESO) as Total_Anual
+FROM OPERACIONES
+WHERE INGRESO IS NOT NULL
+    AND EXTRACT(YEAR FROM FECHA) = 2025
+GROUP BY ROLLUP(TIPO_OPERACION)",1

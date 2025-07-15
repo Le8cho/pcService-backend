@@ -1,2 +1,16 @@
 ID_OPERACION,DETALLE_SERVICIO,TECNICO_ENCARGADO,DURACION_ESTIMADA
+4,Instalación de red doméstica y configuración de router,Téc. Jorge Salazar,2 horas
+7,Instalación y configuración de cámaras de seguridad Wi-Fi,Téc. Rosario Pinto,3 horas
+10,Configuración de punto de red para oficina y pruebas de conectividad,Téc. Edwin Tello,2.5 horas
+225,"Limpieza preventiva Laptop Lenovo
+Instalación antivirus Kaspersky",Tec. Naze,2 horas
+232,Hola Que me cuentas,ALEXO,3 Horas
+243,"Arreglo y mantenimiento de impresora, tintes cambiados",Tec. Naze,2 horas
+42,Instalación y configuración de router,Téc. Jorge Salazar,2 horas
+259,"Instalacion de Redes en su casa, Mas la ",Maxito,3 Horas
+261,caro,Maxito,3 Horas
+237,Borrar,Borrar,20
+286,HOla,ALEXO,3 Horas
 217,Se hace una prueba del servidor Mirror,TecnicoMirrro,2 Horas
+268,ESta,Maxito,3 Horas
+270,asd,sad,asd
